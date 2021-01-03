@@ -1,8 +1,8 @@
 import nodeResolve from '@rollup/plugin-node-resolve'
 import babel from '@rollup/plugin-babel'
 import { Config } from './types/config'
-import presets from './presets'
 import { Plugin } from 'rollup'
+import presets from './presets'
 
 export default class Plugins {
 

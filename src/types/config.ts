@@ -1,14 +1,21 @@
-import { Plugin } from 'rollup'
+import { RollupOptions } from 'rollup'
 
 export namespace Config {
-    export interface BuildOptions {
-        dirname: string | string[]
+
+    interface CustomRollupOptions {
+        packages: string | string[]
+        /**
+         * @description if true, then older browsers will be supported, also the ie 11
+         */
         legacySupport?: boolean,
-        plugins?: Plugin[]
         createLoaders?: boolean
         silent?: boolean
         watch?: boolean
     }
+
+    export type BuildOptions = CustomRollupOptions & Omit<RollupOptions, 'output' | 'input'>;
+
+    export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
 
     export enum Target {
         default = 'default',
@@ -16,7 +23,7 @@ export namespace Config {
     }
 
     export enum BundleFormat {
-        iife ='iife',
+        iife = 'iife',
         esm = 'esm'
     }
 

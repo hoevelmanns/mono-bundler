@@ -1,3 +1,3 @@
-import MonoRollup from "./mono-rollup";
+import MonoBundler from "./mono-bundler";
 
-export default MonoRollup
+export default MonoBundler

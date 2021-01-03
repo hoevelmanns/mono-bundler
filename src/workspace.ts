@@ -1,6 +1,6 @@
 import Dependency from './dependency'
 import Package from './package'
-import Logger from './logger'
+import Logger from './libs/logger'
 import * as fb from 'fast-glob'
 import { Config } from './types/config'
 
@@ -24,8 +24,8 @@ export default class Workspace {
     }
 
     setGlobs() {
-        const { dirname } = this.options
-        this.globs = Array.isArray(dirname) ? dirname : [dirname]
+        const { packages } = this.options
+        this.globs = Array.isArray(packages) ? packages : [packages]
     }
 
     /**
