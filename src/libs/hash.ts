@@ -23,9 +23,7 @@ export default class Hash {
     }
 
     /**
-     * @description Hier fehlt eine Beschreibung.
-     *
-     * @todo Beschriftung
+     * @todo description
      * @returns {string}
      */
     async get(): Promise<string> {
@@ -44,7 +42,8 @@ export default class Hash {
         this.hash = (await hashElement(sourceDir)).hash
             .toString()
             .replace(/[^a-z0-9]/gi, '')
-            .slice(0, 16).toLowerCase()
+            .slice(0, 16)
+            .toLowerCase()
 
         return this
     }

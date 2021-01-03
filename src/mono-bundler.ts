@@ -1,32 +1,32 @@
 import { OutputOptions, RollupOptions } from 'rollup'
 import { Config } from './types/config'
-import fileSystem from './filesystem'
+import fileSystem from './libs/filesystem'
 import Workspace from './workspace'
 import Package from './package'
 import Plugins from './plugins'
-import Logger from './logger'
+import Logger from './libs/logger'
 import Loader from './loader'
 
 /**
- * @todo rename class
+ * @todo description
  */
-export default class MonoRollup {
+export default class MonoBundler {
 
     private modifiedPackages: { [name: string]: Package } = {}
-    private rollupConfig: RollupOptions[] = []
-    private plugins = new Plugins(this.config)
-    private workspace = new Workspace(this.config)
-    private log = new Logger(this.config.silent)
+    private rollupOptions: RollupOptions[] = []
+    private plugins = new Plugins(this.buildOptions)
+    private workspace = new Workspace(this.buildOptions)
+    private log = new Logger(this.buildOptions.silent)
     private args = require('minimist')(process.argv.slice(2))
+    protected readonly noRollupOptions: Config.AvailableBuildOptions = ['packages', 'createLoaders', 'legacySupport']
 
-    constructor(private readonly config: Config.BuildOptions) {
+    constructor(private readonly buildOptions: Config.BuildOptions) {
     }
 
     async build(): Promise<RollupOptions[]> {
-
         await Promise.all(this.workspace.packages.map(async pkg => pkg.main && await this.addRollupConfig(pkg)))
 
-        if (!this.rollupConfig.length) {
+        if (!this.rollupOptions.length) {
             this.log.success('All package bundles are present and up-to-date. Nothing to do.')
         }
 
@@ -34,14 +34,14 @@ export default class MonoRollup {
 
         this.generateLoaders()
 
-        return this.rollupConfig.length ? this.rollupConfig : process.exit(0)
+        return this.rollupOptions.length ? this.rollupOptions : process.exit(0)
     }
 
     /**
      * @private
      */
     private get option() {
-        return { ...this.config, ...this.args }
+        return { ...this.buildOptions, ...this.args }
     }
 
     /**
@@ -57,27 +57,39 @@ export default class MonoRollup {
         await Promise.all(this.targets.map(async target => {
 
             const output = await pkg.output(target)
-            const { modifiedPackages, rollupConfig } = this
+            const { modifiedPackages, rollupOptions } = this
 
             if (!input || this.bundleShouldBeSkipped(output, target)) {
                 return
             }
 
-            const plugins = this.plugins.get(target)
-
             pkg.bundles.push({ file: output.file, target })
 
             modifiedPackages[pkg.name] = pkg
 
-            rollupConfig.push({
-                input,
-                output: target === Config.Target.default
-                    ? [output, await pkg.output(Config.Target.default, false)]
-                    : output,
-                external,
-                plugins,
+            rollupOptions.push({
+                ...this.cleanRollupOptions,
+                ...{
+                    input,
+                    external,
+                    output: target === Config.Target.default
+                        ? [output, await pkg.output(Config.Target.default, false)]
+                        : output,
+                    plugins: this.plugins.get(target),
+                },
             })
         }))
+    }
+
+    /**
+     *
+     * @private
+     */
+    private get cleanRollupOptions() {
+        const rollupOptions = { ...this.buildOptions }
+
+        this.noRollupOptions.map(key => delete rollupOptions[key])
+        return rollupOptions
     }
 
     /**
@@ -98,6 +110,7 @@ export default class MonoRollup {
      */
     private showModifiedPackages() {
         const modifiedPackages = Object.keys(this.modifiedPackages)
+
         modifiedPackages.length && this.log.info('Modified packages:')
         modifiedPackages.map(name => this.log.yellow(`- ${name}`))
     }

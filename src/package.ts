@@ -1,8 +1,8 @@
 import { readJSONSync } from 'fs-extra'
-import Hash from './hash'
+import Hash from './libs/hash'
 import Dependency from './dependency'
 import { OutputOptions } from 'rollup'
-import fileSystem from './filesystem'
+import fileSystem from './libs/filesystem'
 import { Config } from './types/config'
 
 const path = require('path')
