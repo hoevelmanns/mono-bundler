@@ -1,5 +1,3 @@
-import RollupConfig from "./rollup-config";
+import MonoRollup from "./mono-rollup";
 
-export default {
-    RollupConfig,
-}
+export default MonoRollup

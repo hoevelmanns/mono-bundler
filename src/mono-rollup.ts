@@ -10,7 +10,7 @@ import Loader from './loader'
 /**
  * @todo rename class
  */
-export default class RollupConfig {
+export default class MonoRollup {
 
     private modifiedPackages: { [name: string]: Package } = {}
     private rollupConfig: RollupOptions[] = []
@@ -22,7 +22,7 @@ export default class RollupConfig {
     constructor(private readonly config: Config.BuildOptions) {
     }
 
-    async create(): Promise<RollupOptions[]> {
+    async build(): Promise<RollupOptions[]> {
 
         await Promise.all(this.workspace.packages.map(async pkg => pkg.main && await this.addRollupConfig(pkg)))
 
@@ -37,6 +37,9 @@ export default class RollupConfig {
         return this.rollupConfig.length ? this.rollupConfig : process.exit(0)
     }
 
+    /**
+     * @private
+     */
     private get option() {
         return { ...this.config, ...this.args }
     }
@@ -47,26 +50,35 @@ export default class RollupConfig {
      * @param {Package} pkg - Package
      * @returns void
      */
-    private addRollupConfig = async (pkg: Package): Promise<void[]> => Promise.all(this.targets.map(async target => {
-
-        const output = await pkg.output(target, this.option.watch)
+    private addRollupConfig = async (pkg: Package): Promise<void> => {
         const { input } = pkg
+        const external = id => id.includes('core-js') // todo merge with this.config
 
-        if (!input || this.bundleShouldBeSkipped(output, target)) {
-            return
-        }
+        await Promise.all(this.targets.map(async target => {
 
-        pkg.bundles.push({ file: output.file, target })
+            const output = await pkg.output(target)
+            const { modifiedPackages, rollupConfig } = this
 
-        this.modifiedPackages[pkg.name] = pkg
+            if (!input || this.bundleShouldBeSkipped(output, target)) {
+                return
+            }
 
-        this.rollupConfig.push({
-            input,
-            output,
-            external: id => id.includes('core-js'), // todo merge with this.config
-            plugins: this.plugins.get(target),
-        })
-    }))
+            const plugins = this.plugins.get(target)
+
+            pkg.bundles.push({ file: output.file, target })
+
+            modifiedPackages[pkg.name] = pkg
+
+            rollupConfig.push({
+                input,
+                output: target === Config.Target.default
+                    ? [output, await pkg.output(Config.Target.default, false)]
+                    : output,
+                external,
+                plugins,
+            })
+        }))
+    }
 
     /**
      *
@@ -90,8 +102,14 @@ export default class RollupConfig {
         modifiedPackages.map(name => this.log.yellow(`- ${name}`))
     }
 
+    /**
+     *
+     * @private
+     */
     private get targets() {
-        return this.option?.legacySupport ? [Config.Target.default, Config.Target.legacy] : [Config.Target.default]
+        return this.option?.legacySupport
+            ? [Config.Target.default, Config.Target.legacy]
+            : [Config.Target.default]
     }
 
     /**

@@ -1,8 +1,8 @@
-import RollupConfig from './dist/rollup-config'
+import MonoRollup from './dist/rollup-config'
 import filesize from 'rollup-plugin-filesize'
 import { terser } from 'rollup-plugin-terser'
 
-export default async () => await new RollupConfig({
+export default async () => await new MonoRollup({
     dirname: [
         '../custom/plugins/*/Resources/frontend',
         '../themes',
@@ -13,4 +13,4 @@ export default async () => await new RollupConfig({
         filesize(),
         terser(),
     ],
-}).create()
+}).build()

@@ -39,17 +39,16 @@ export default class Package {
     /**
      *
      * @param {string} target
-     * @param watchMode
+     * @param {boolean} hashFileName
      * @private
      */
-    async output(target: string, watchMode?: boolean): Promise<OutputOptions> {
+    async output(target: string, hashFileName = true): Promise<OutputOptions> {
         const bundlePath = this.bundlePath(target)
 
         return {
-            file: watchMode
+            file: !hashFileName
                 ? bundlePath
                 : await this.hash.file(bundlePath), // no hashing in watch mode */
-
             format: target === Config.Target.legacy ? Config.BundleFormat.iife : Config.BundleFormat.esm, // todo,
         }
     }
