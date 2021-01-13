@@ -1,7 +1,6 @@
 import { hashElement } from 'folder-hash'
 import fileSystem from './filesystem'
 
-
 export default class Hash {
     private hash: string = ''
 
@@ -10,16 +9,6 @@ export default class Hash {
      * @param {string} input
      */
     constructor(private readonly input: string) {
-    }
-
-    /**
-     *
-     * @param {string} filename
-     * @returns {string}
-     */
-    async file(filename: string) {
-        await this.generate()
-        return fileSystem.concat(filename, this.hash)
     }
 
     /**
@@ -32,19 +21,24 @@ export default class Hash {
     }
 
     /**
-     * @returns {Promise<Hash>}
+     * @returns {Promise<string>}
      */
-    private async generate(): Promise<Hash> {
-        if (this.hash) return this
+    async generate(): Promise<string> {
+        if (this.hash) return this.hash
 
-        const sourceDir = fileSystem.dirname(this.input)
-
-        this.hash = (await hashElement(sourceDir)).hash
+        const hash = (await hashElement(this.input)).hash
             .toString()
             .replace(/[^a-z0-9]/gi, '')
             .slice(0, 16)
             .toLowerCase()
 
-        return this
+        this.hash = hash
+
+        return this.hash;
     }
+
+    writeHashFile() {
+        //outputFileSync(fileSystem.join(targetPath, '.hash'), hash)
+    }
+
 }

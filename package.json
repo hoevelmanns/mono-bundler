@@ -8,8 +8,6 @@
     },
     "scripts": {
         "roll": "rollup",
-        "build": "rollup --config",
-        "dev": "rollup --config --watch",
         "cli:build": "tsc --outDir dist",
         "cli:watch": "tsc -w --outDir dist"
     },

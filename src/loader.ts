@@ -1,5 +1,6 @@
 import { Config } from './types/config'
-import { outputFileSync } from 'fs-extra'
+import { OutputOptions } from 'rollup'
+import fileSystem from './libs/filesystem'
 
 const path = require('path')
 
@@ -8,10 +9,10 @@ export default class Loader {
     private imports: string[] = []
 
     /**
-     * @param {Bundle[]} bundles
+     * @param {OutputOptions[]} outputs
      */
-    constructor(private bundles: Config.Bundle[]) {
-        bundles.map(bundle => this.addImport(bundle))
+    constructor(private outputs: OutputOptions[]) {
+        outputs.map(bundle => this.addImport(bundle))
     }
 
     /**
@@ -23,20 +24,18 @@ export default class Loader {
      */
     output(targetPath: string, hash?: string, createHashFile?: boolean): void {
         const fileName = ['loader', hash, 'js'].filter(n => !!n).join('.')
-
-        outputFileSync(path.join(targetPath, fileName), this.imports.join('')) // todo get imports file from config
-        outputFileSync(path.join(targetPath, '.hash'), hash)
+        fileSystem.outputFileSync(path.join(targetPath, fileName), this.imports.join('')) // todo get imports file from config
     }
 
     /**
      *
-     * @param {Bundle} bundle
      * @returns Loader
+     * @param output
      */
-    addImport(bundle: Config.Bundle): Loader {
-        const extName = path.extname(bundle.file).slice(1)
+    addImport(output: OutputOptions): Loader {
+        const extName = path.extname(output.file).slice(1)
 
-        extName === 'js' && this.imports.push(this.jsImport(bundle))
+        extName === 'js' && this.imports.push(this.jsImport(output))
         // todo extName === 'css' && this.imports.push(this.cssImport(bundle))
 
         return this
@@ -44,12 +43,12 @@ export default class Loader {
 
     /**
      *
-     * @param {Bundle} bundle
      * @returns string
+     * @param {OutputOptions} output
      */
-    protected jsImport(bundle: Config.Bundle) {
-        const file = bundle.file.replace('..', '') // todo
-        const moduleAttr = bundle.target === Config.Target.legacy ? `elem.noModule=true` : `elem.type="module"`
+    protected jsImport(output: OutputOptions) {
+        const file = output.file.replace('..', '') // todo
+        const moduleAttr = Config.Target[output.name].loaderAttribute
 
         return `elem = document.createElement('script');elem.src="${file}";${moduleAttr};document.head.appendChild(elem);`
     }

@@ -1,4 +1,4 @@
-import { RollupOptions } from 'rollup'
+import { ModuleFormat, RollupOptions } from 'rollup'
 
 export namespace Config {
 
@@ -8,7 +8,8 @@ export namespace Config {
          * @description if true, then older browsers will be supported, also the ie 11
          */
         legacySupport?: boolean,
-        createLoaders?: boolean
+        createLoaders?: boolean,
+        hashFileNames?: boolean,
         silent?: boolean
         watch?: boolean
     }
@@ -17,18 +18,13 @@ export namespace Config {
 
     export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
 
-    export enum Target {
-        default = 'default',
-        legacy = 'legacy'
-    }
-
-    export enum BundleFormat {
-        iife = 'iife',
-        esm = 'esm'
+    export const Target = {
+        default: { name: 'default', extraFileExtension: '', format: <ModuleFormat>'esm', loaderAttribute: 'elem.type="module"' },
+        legacy: { name: 'legacy', extraFileExtension: 'legacy', format: <ModuleFormat>'iife', loaderAttribute: 'elem.noModule=true'  },
     }
 
     export interface Bundle {
         file: string
-        target: string
+        target: typeof Target
     }
 }

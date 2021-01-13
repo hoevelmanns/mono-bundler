@@ -5,8 +5,6 @@ import { OutputOptions } from 'rollup'
 import fileSystem from './libs/filesystem'
 import { Config } from './types/config'
 
-const path = require('path')
-
 interface Browser {
     umd?: string,
     esm?: string
@@ -19,38 +17,24 @@ interface Directories {
 export default class Package {
     name: string
     main: string
-    bundles: Config.Bundle[] = []
     browser?: Browser
     dependencies: Dependency[]
     devDependencies: Dependency[]
     location: string
+    sourceDir: string
     distDir: string
     directories: Directories
     input: string
-    hash: Hash
+    output: OutputOptions[] = []
+    hash: string
+    isModified = false
+    isIgnored = false
 
     /**
      * @param {string} pkgJsonFile
+     * @param {Config.BuildOptions} buildOptions
      */
-    constructor(private readonly pkgJsonFile: string) {
-        this.init()
-    }
-
-    /**
-     *
-     * @param {string} target
-     * @param {boolean} hashFileName
-     * @private
-     */
-    async output(target: string, hashFileName = true): Promise<OutputOptions> {
-        const bundlePath = this.bundlePath(target)
-
-        return {
-            file: !hashFileName
-                ? bundlePath
-                : await this.hash.file(bundlePath), // no hashing in watch mode */
-            format: target === Config.Target.legacy ? Config.BundleFormat.iife : Config.BundleFormat.esm, // todo,
-        }
+    constructor(private readonly pkgJsonFile: string, protected buildOptions: Config.BuildOptions) {
     }
 
     /**
@@ -58,12 +42,39 @@ export default class Package {
      * @private
      * @returns void
      */
-    private init(): void {
+    async init(): Promise<Package> {
         Object.assign(this, readJSONSync(this.pkgJsonFile))
-        this.setLocation()
-        this.setInput()
-        this.setHash()
-        this.setDistDir()
+
+        this.setDirectories()
+
+        if (this.shouldBeIgnored()) {
+            return this
+        }
+
+        await this.setHash()
+
+        this.setRollupInput()
+
+        this.setRollupOutput()
+
+        this.isModified = this.checkIfModified()
+
+        this.outputHashFile()
+
+        return this
+    }
+
+    /**
+     * @private
+     * @returns boolean
+     */
+    private checkIfModified() {
+        return !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+    }
+
+    private shouldBeIgnored() {
+        this.isIgnored = !this.main
+        return this.isIgnored
     }
 
     /**
@@ -71,11 +82,48 @@ export default class Package {
      * @private
      * @returns void
      */
-    private setInput(): void {
-        const sourcePath = this.directories?.source ?? 'src'
-        const inputTS = path.join(this.location, sourcePath, 'index.ts')
-        const inputJS = path.join(this.location, sourcePath, 'index.js')
-        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS)? inputJS : undefined
+    private setRollupInput(): void {
+
+        const inputTS = fileSystem.join(this.sourceDir, 'index.ts')
+        const inputJS = fileSystem.join(this.sourceDir, 'index.js')
+        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS) ? inputJS : undefined
+    }
+
+    /**
+     *
+     * @private
+     */
+    setRollupOutput(): void {
+        if (this.buildOptions.hashFileNames) {
+            this.output.push({
+                name: 'default',
+                file: fileSystem.join(this.location, this.main),
+                format: Config.Target['default'].format,
+            })
+        }
+
+        Object.entries(Config.Target).map(async ([targetName, target]) => {
+            const filename = fileSystem.concat(fileSystem.join(this.location, this.main), target.extraFileExtension)
+            this.output.push({
+                name: targetName,
+                file: !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash),
+                format: Config.Target[targetName].format,
+            })
+        })
+    }
+
+
+    /**
+     *
+     * @private
+     * @returns void
+     */
+    private async setHash(): Promise<void> {
+        this.hash = await new Hash(this.sourceDir).generate()
+    }
+
+    outputHashFile() {
+        fileSystem.outputFileSync(fileSystem.join(fileSystem.dirname(fileSystem.join(this.location, this.main)), '.' + this.hash), this.hash)
     }
 
     /**
@@ -83,38 +131,9 @@ export default class Package {
      * @private
      * @returns void
      */
-    private setHash(): void {
-        this.hash = new Hash(this.input)
-    }
-
-    /**
-     *
-     * @private
-     * @returns void
-     */
-    private setLocation(): void {
+    private setDirectories(): void {
         this.location = this.pkgJsonFile.replace('/package.json', '')
-    }
-
-    /**
-     *
-     * @private
-     * @returns void
-     */
-    private setDistDir(): void {
-        this.distDir = path.join(this.location,
-            this.main
-                ? path.dirname(this.main)
-                : path.join(this.location, 'dist'),
-        )
-    }
-
-    /**
-     *
-     * @param {string} target
-     */
-    private bundlePath = (target: string): string => {
-        const filePath = `${this.location}/${this.main}`
-        return target === Config.Target.default ? filePath : fileSystem.concat(filePath, target)
+        this.distDir = fileSystem.dirname(fileSystem.join(this.location, this.main ?? 'dist'))
+        this.sourceDir = fileSystem.join(this.location, this.directories?.source ?? 'src')
     }
 }
