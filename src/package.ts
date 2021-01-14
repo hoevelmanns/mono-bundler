@@ -69,7 +69,7 @@ export default class Package {
      * @returns boolean
      */
     private checkIfModified() {
-        return !fileSystem.existsSync(fileSystem.resolve(`${this.distDir}/.${this.hash}`))
+        return !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
     }
 
     private shouldBeIgnored() {
@@ -85,7 +85,7 @@ export default class Package {
         const inputTS = fileSystem.join(this.sourceDir, 'index.ts')
         const inputJS = fileSystem.join(this.sourceDir, 'index.js')
 
-        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.resolve(fileSystem.existsSync(inputJS)) ? inputJS : null
+        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS) ? inputJS : null
     }
 
     /**
