@@ -7,8 +7,10 @@
         "build": "tsc --outDir dist",
         "watch": "tsc -w --outDir dist"
     },
-    "author": "",
-    "license": "ISC",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "author": "Marcelle Hövelmanns",
+    "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.12.9",
         "@babel/plugin-proposal-class-properties": "^7.12.1",

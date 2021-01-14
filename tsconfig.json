@@ -9,7 +9,8 @@
         "declaration": true,
         "lib": ["es2018", "dom", "esnext"]
     },
+    "files": ["./src/index.ts"],
     "include": [
-        "src/**/*.ts"
+        "src/**/*"
     ]
 }
