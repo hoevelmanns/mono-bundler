@@ -21,6 +21,8 @@ class FileSystem {
     static join = (...paths: string[]) => path.join(...paths)
 
     static outputFileSync = (dest: string, content: string) => outputFileSync(dest, content)
+
+    static resolve = (...pathSegments: string[]) => path.resolve(...pathSegments)
 }
 
 const fileSystem = FileSystem
