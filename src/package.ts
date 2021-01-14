@@ -3,7 +3,7 @@ import Hash from './libs/hash'
 import Dependency from './dependency'
 import { OutputOptions } from 'rollup'
 import fileSystem from './libs/filesystem'
-import { Config } from './types/config'
+import { Config } from './types/config' // todo
 
 interface Browser {
     umd?: string,
@@ -103,9 +103,11 @@ export default class Package {
 
         Object.entries(Config.Target).map(async ([targetName, target]) => {
             const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
+
             this.output.push({
                 name: targetName,
                 file: !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash),
+                // @ts-ignore todo
                 format: Config.Target[targetName.toString()].format,
             })
         })

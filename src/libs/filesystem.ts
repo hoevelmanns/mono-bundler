@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 import fs from 'fs-extra'
 import { outputFileSync } from 'fs-extra'
 
@@ -12,11 +12,11 @@ class FileSystem {
         return filename.replace(outputExtension, `.${str}${outputExtension}`)
     }
 
-    static dirname = file => path.dirname(file)
+    static dirname = (file: string) => path.dirname(file)
 
-    static copySync = (src, dest, opts?: any) => fs.copySync (src, dest, opts)
+    static copySync = (src: string, dest: string, opts?: any) => fs.copySync (src, dest, opts)
 
-    static existsSync = file => fs.existsSync(file)
+    static existsSync = (file: string) => fs.existsSync(file)
 
     static join = (...paths: string[]) => path.join(...paths)
 

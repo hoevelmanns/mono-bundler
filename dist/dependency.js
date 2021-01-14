@@ -1,4 +1,6 @@
-export default class Dependency {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Dependency {
     /**
      * @param {string[]} dep
      */
@@ -6,3 +8,5 @@ export default class Dependency {
         Object.assign(this, { name: dep[0], version: dep[1] });
     }
 }
+exports.default = Dependency;
+//# sourceMappingURL=dependency.js.map

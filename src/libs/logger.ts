@@ -1,5 +1,5 @@
-import * as logSymbols from 'log-symbols'
-import * as chalk from 'chalk'
+import logSymbols from 'log-symbols'
+import chalk from 'chalk'
 
 const errorTxt = chalk.red
 const yellowTxt = chalk.yellow

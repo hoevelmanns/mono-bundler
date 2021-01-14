@@ -1,6 +1,6 @@
-import { Config } from './types/config'
 import { OutputOptions } from 'rollup'
 import fileSystem from './libs/filesystem'
+import { Config } from './types/config'
 
 const path = require('path')
 
@@ -48,6 +48,7 @@ export default class Loader {
      */
     protected jsImport(output: OutputOptions) {
         const file = output.file.replace('..', '') // todo
+        // @ts-ignore todo
         const moduleAttr = Config.Target[output.name].loaderAttribute
 
         return `elem = document.createElement('script');elem.src="${file}";${moduleAttr};document.head.appendChild(elem);`

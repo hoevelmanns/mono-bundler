@@ -1,12 +1,12 @@
 import { RollupOptions } from 'rollup'
-import { Config } from './types/config'
+import { Config } from 'config'
 import Workspace from './workspace'
 import Package from './package'
 import Logger from './libs/logger'
 import Plugins from './plugins'
 import Loader from './loader'
 
-export default class MonoBundler {
+export class MonoBundler {
     private rollupConfigurations: RollupOptions[] = []
     private workspace = new Workspace(this.buildOptions)
     private readonly plugins = new Plugins(this.buildOptions)
@@ -40,7 +40,7 @@ export default class MonoBundler {
      */
     private buildRollupConfig = (): void => {
         const packages = this.workspace.packages
-        const external = id => id.includes('core-js') // todo merge with this.config
+        const external = (id: string) => id.includes('core-js') // todo merge with this.config
 
         packages.filter(pkg => pkg.isModified).map((pkg: Package) =>
             pkg.output.map(output =>

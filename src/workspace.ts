@@ -2,11 +2,11 @@ import Dependency from './dependency'
 import Package from './package'
 import Logger from './libs/logger'
 import * as fb from 'fast-glob'
-import { Config } from './types/config'
+import { Config } from 'config'
 
 export default class Workspace {
     packages: Package[] = []
-    dependencies: Dependency[] = []
+    dependencies: (Dependency | [string, unknown])[] = []
     private globs: string[] = []
     private log: Logger
     private readonly args = require('minimist')(process.argv.slice(2))
@@ -76,7 +76,7 @@ export default class Workspace {
 
         this.dependencies = Array
             .from(new Set(this.dependencies).values())
-            .map(dep => new Dependency(dep))
+            .map(dep => new Dependency(dep as string[]))
 
     }
 

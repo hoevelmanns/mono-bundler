@@ -1,7 +1,12 @@
-import { Config } from './types/config';
-import fileSystem from './libs/filesystem';
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const filesystem_1 = __importDefault(require("./libs/filesystem"));
+const config_1 = require("./types/config");
 const path = require('path');
-export default class Loader {
+class Loader {
     /**
      * @param {OutputOptions[]} outputs
      */
@@ -19,7 +24,7 @@ export default class Loader {
      */
     output(targetPath, hash, createHashFile) {
         const fileName = ['loader', hash, 'js'].filter(n => !!n).join('.');
-        fileSystem.outputFileSync(path.join(targetPath, fileName), this.imports.join('')); // todo get imports file from config
+        filesystem_1.default.outputFileSync(path.join(targetPath, fileName), this.imports.join('')); // todo get imports file from config
     }
     /**
      *
@@ -39,7 +44,8 @@ export default class Loader {
      */
     jsImport(output) {
         const file = output.file.replace('..', ''); // todo
-        const moduleAttr = Config.Target[output.name].loaderAttribute;
+        // @ts-ignore todo
+        const moduleAttr = config_1.Config.Target[output.name].loaderAttribute;
         return `elem = document.createElement('script');elem.src="${file}";${moduleAttr};document.head.appendChild(elem);`;
     }
     /**
@@ -51,3 +57,5 @@ export default class Loader {
         // todo
     }
 }
+exports.default = Loader;
+//# sourceMappingURL=loader.js.map
