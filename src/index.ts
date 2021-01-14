@@ -1,3 +1,3 @@
-import MonoBundler from "./mono-bundler";
+import MonoBundler from "./mono-bundler"
 
 export default MonoBundler

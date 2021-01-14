@@ -47,7 +47,7 @@ export default class Workspace {
     async findPackages(): Promise<any> {
         await Promise.all(this.globs.map(async glob => {
             const packageLocations = fb.sync(`${glob}/package.json`)
-            await Promise.all(packageLocations.map(async (pkgJson) => await this.packages.push(await new Package(pkgJson, this.options).init())))
+            await Promise.all(packageLocations.map(async pkgJson => await this.packages.push(await new Package(pkgJson, this.options).init())))
         }))
     }
 

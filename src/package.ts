@@ -85,7 +85,7 @@ export default class Package {
         const inputTS = fileSystem.join(this.sourceDir, 'index.ts')
         const inputJS = fileSystem.join(this.sourceDir, 'index.js')
 
-        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS) ? inputJS : undefined
+        this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS) ? inputJS : null
     }
 
     /**
