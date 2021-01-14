@@ -1,5 +1,7 @@
 # mono-bundler
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3255f4d75d9d44daac58f4c177191365)](https://app.codacy.com/gh/hoevelmanns/mono-bundler?utm_source=github.com&utm_medium=referral&utm_content=hoevelmanns/mono-bundler&utm_campaign=Badge_Grade)
+
 Work in process
 
 #Usage
