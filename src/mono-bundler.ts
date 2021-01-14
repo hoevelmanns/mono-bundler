@@ -73,7 +73,7 @@ export default class MonoBundler {
     private get cleanRollupOptions() {
         const rollupOptions = { ...this.buildOptions }
 
-        this.noRollupOptions.map(key => delete rollupOptions[key])
+        this.noRollupOptions.map(key => delete rollupOptions[key.toString()])
         return rollupOptions
     }
 
