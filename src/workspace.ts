@@ -18,6 +18,7 @@ export default class Workspace {
     async init(): Promise<void> {
 
         this.log = new Logger(this.options?.silent)
+
         this.setGlobs()
 
         await this.findPackages()
@@ -25,8 +26,8 @@ export default class Workspace {
         await this.findDependencies()
 
         this.log.info(`Found ${this.packages.length} packages`)
-        this.log.info(`Found ${this.dependencies.length} dependencies`)
 
+        this.log.info(`Found ${this.dependencies.length} dependencies`)
     }
 
     get modifiedPackages() {

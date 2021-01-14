@@ -20,7 +20,7 @@ export default class Package {
     browser?: Browser
     dependencies: Dependency[]
     devDependencies: Dependency[]
-    location: string
+    packageDir: string
     sourceDir: string
     distDir: string
     directories: Directories
@@ -73,8 +73,7 @@ export default class Package {
     }
 
     private shouldBeIgnored() {
-        this.isIgnored = !this.main
-        return this.isIgnored
+        return this.isIgnored = !this.main
     }
 
     /**
@@ -83,9 +82,9 @@ export default class Package {
      * @returns void
      */
     private setRollupInput(): void {
-
         const inputTS = fileSystem.join(this.sourceDir, 'index.ts')
         const inputJS = fileSystem.join(this.sourceDir, 'index.js')
+
         this.input = fileSystem.existsSync(inputTS) ? inputTS : fileSystem.existsSync(inputJS) ? inputJS : undefined
     }
 
@@ -97,13 +96,13 @@ export default class Package {
         if (this.buildOptions.hashFileNames) {
             this.output.push({
                 name: 'default',
-                file: fileSystem.join(this.location, this.main),
+                file: fileSystem.join(this.packageDir, this.main),
                 format: Config.Target['default'].format,
             })
         }
 
         Object.entries(Config.Target).map(async ([targetName, target]) => {
-            const filename = fileSystem.concat(fileSystem.join(this.location, this.main), target.extraFileExtension)
+            const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
             this.output.push({
                 name: targetName,
                 file: !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash),
@@ -123,7 +122,7 @@ export default class Package {
     }
 
     outputHashFile() {
-        fileSystem.outputFileSync(fileSystem.join(fileSystem.dirname(fileSystem.join(this.location, this.main)), '.' + this.hash), this.hash)
+        fileSystem.outputFileSync(fileSystem.join(fileSystem.dirname(fileSystem.join(this.packageDir, this.main)), '.' + this.hash), this.hash)
     }
 
     /**
@@ -132,8 +131,8 @@ export default class Package {
      * @returns void
      */
     private setDirectories(): void {
-        this.location = this.pkgJsonFile.replace('/package.json', '')
-        this.distDir = fileSystem.dirname(fileSystem.join(this.location, this.main ?? 'dist'))
-        this.sourceDir = fileSystem.join(this.location, this.directories?.source ?? 'src')
+        this.packageDir = this.pkgJsonFile.replace('/package.json', '')
+        this.sourceDir = fileSystem.join(this.packageDir, this.directories?.source ?? 'src')
+        this.distDir = fileSystem.dirname(fileSystem.join(this.packageDir, this.main ?? 'dist'))
     }
 }

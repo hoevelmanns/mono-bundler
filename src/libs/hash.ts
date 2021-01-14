@@ -1,5 +1,4 @@
 import { hashElement } from 'folder-hash'
-import fileSystem from './filesystem'
 
 export default class Hash {
     private hash: string = ''
@@ -26,19 +25,12 @@ export default class Hash {
     async generate(): Promise<string> {
         if (this.hash) return this.hash
 
-        const hash = (await hashElement(this.input)).hash
+        this.hash = (await hashElement(this.input)).hash
             .toString()
             .replace(/[^a-z0-9]/gi, '')
             .slice(0, 16)
             .toLowerCase()
 
-        this.hash = hash
-
         return this.hash;
     }
-
-    writeHashFile() {
-        //outputFileSync(fileSystem.join(targetPath, '.hash'), hash)
-    }
-
 }

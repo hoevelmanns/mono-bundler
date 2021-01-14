@@ -4,10 +4,6 @@ export namespace Config {
 
     interface CustomRollupOptions {
         packages: string | string[]
-        /**
-         * @description if true, then older browsers will be supported, also the ie 11
-         */
-        legacySupport?: boolean,
         createLoaders?: boolean,
         hashFileNames?: boolean,
         silent?: boolean

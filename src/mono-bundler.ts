@@ -5,7 +5,7 @@ import Package from './package'
 import Logger from './libs/logger'
 import Plugins from './plugins'
 import Loader from './loader'
-import fileSystem from './libs/filesystem'
+
 
 /**
  * @todo description
@@ -16,7 +16,7 @@ export default class MonoBundler {
     private readonly workspace = new Workspace(this.buildOptions)
     private readonly log = new Logger(this.buildOptions.silent)
     private readonly plugins = new Plugins(this.buildOptions)
-    protected readonly noRollupOptions: Config.AvailableBuildOptions = ['packages', 'createLoaders', 'legacySupport', 'hashFileNames']
+    protected readonly noRollupOptions: Config.AvailableBuildOptions = ['packages', 'createLoaders', 'hashFileNames']
 
     constructor(private readonly buildOptions: Config.BuildOptions) {
     }
@@ -94,7 +94,7 @@ export default class MonoBundler {
      * @returns void
      */
     private showModifiedPackages() {
-        const {modifiedPackages} = this.workspace
+        const { modifiedPackages } = this.workspace
         modifiedPackages.length && this.log.info('Modified packages:')
         modifiedPackages.map(pkg => this.log.yellow(`- ${pkg.name}`))
     }
