@@ -3,13 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "main": "./dist/index.js",
-    "bin": {
-        "vc": "./dist/index.js"
-    },
     "scripts": {
-        "roll": "rollup",
-        "cli:build": "tsc --outDir dist",
-        "cli:watch": "tsc -w --outDir dist"
+        "build": "tsc --outDir dist",
+        "watch": "tsc -w --outDir dist"
     },
     "author": "",
     "license": "ISC",

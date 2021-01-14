@@ -12,10 +12,9 @@ export default class Workspace {
     private readonly args = require('minimist')(process.argv.slice(2))
 
     constructor(protected readonly buildOptions: Config.BuildOptions) {
-
     }
 
-    async init(): Promise<void> {
+    async init(): Promise<Workspace> {
 
         this.log = new Logger(this.options?.silent)
 
@@ -28,13 +27,24 @@ export default class Workspace {
         this.log.info(`Found ${this.packages.length} packages`)
 
         this.log.info(`Found ${this.dependencies.length} dependencies`)
+
+        this.showModifiedPackages()
+
+        return this
     }
 
     get modifiedPackages() {
         return this.packages.filter(pkg => pkg.isModified)
     }
 
-    setGlobs() {
+    /**
+     * @private
+     */
+    get options() {
+        return { ...this.buildOptions, ...this.args }
+    }
+
+    private setGlobs() {
         const { packages } = this.buildOptions
         this.globs = Array.isArray(packages) ? packages : [packages]
     }
@@ -44,7 +54,7 @@ export default class Workspace {
      *
      * @returns void
      */
-    async findPackages(): Promise<any> {
+    private async findPackages(): Promise<any> {
         await Promise.all(this.globs.map(async glob => {
             const packageLocations = fb.sync(`${glob}/package.json`)
             await Promise.all(packageLocations.map(async pkgJson => await this.packages.push(await new Package(pkgJson, this.options).init())))
@@ -57,7 +67,7 @@ export default class Workspace {
      *
      * @returns void
      */
-    findDependencies() {
+    private findDependencies() {
         this.packages.map(pkg =>
             this.dependencies = pkg.hasOwnProperty('dependencies')
                 ? [...this.dependencies, ...Object.entries(pkg.dependencies)]
@@ -71,9 +81,13 @@ export default class Workspace {
     }
 
     /**
+     *
      * @private
+     * @returns void
      */
-    get options() {
-        return { ...this.buildOptions, ...this.args }
+    private showModifiedPackages() {
+        const { modifiedPackages } = this
+        modifiedPackages.length && this.log.info('Modified packages:')
+        modifiedPackages.map(pkg => this.log.yellow(`- ${pkg.name}`))
     }
 }

@@ -1,16 +1,15 @@
-import { ModuleFormat, RollupOptions } from 'rollup'
+import { InputOptions, ModuleFormat } from 'rollup'
 
 export namespace Config {
 
-    interface CustomRollupOptions {
+    interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
         packages: string | string[]
         createLoaders?: boolean,
         hashFileNames?: boolean,
         silent?: boolean
-        watch?: boolean
     }
 
-    export type BuildOptions = CustomRollupOptions & Omit<RollupOptions, 'output' | 'input'>;
+    export type BuildOptions = CustomRollupOptions
 
     export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
 
@@ -23,4 +22,6 @@ export namespace Config {
         file: string
         target: typeof Target
     }
+
+    export const rollupExternals = ['core-js']
 }
