@@ -37,15 +37,15 @@ class MonoBundler {
         this.buildRollupConfig = () => {
             const packages = this.workspace.packages;
             const external = (id) => id.includes('core-js'); // todo merge with this.config
+            if (!this.workspace.hasModifiedPackages) {
+                this.log.success('All package bundles are present and up-to-date. Nothing to do.');
+            }
             packages.filter(pkg => pkg.isModified).map((pkg) => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output.name),
                 input: pkg.input,
                 external,
                 output,
             }))));
-            if (!this.rollupConfigurations.length) {
-                this.log.success('All package bundles are present and up-to-date. Nothing to do.');
-            }
         };
     }
     build() {

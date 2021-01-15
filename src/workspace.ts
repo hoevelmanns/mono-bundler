@@ -32,9 +32,16 @@ export default class Workspace {
 
         return this
     }
-
+    
     get modifiedPackages() {
         return this.packages.filter(pkg => pkg.isModified)
+    }
+    
+    /**
+     * @returns boolean
+     */
+    get hasModifiedPackages() {
+        return this.modifiedPackages.length > 0
     }
 
     /**

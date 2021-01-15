@@ -41,7 +41,11 @@ export class MonoBundler {
     private buildRollupConfig = (): void => {
         const packages = this.workspace.packages
         const external = (id: string) => id.includes('core-js') // todo merge with this.config
-
+    
+        if (!this.workspace.hasModifiedPackages) {
+            this.log.success('All package bundles are present and up-to-date. Nothing to do.')
+        }
+        
         packages.filter(pkg => pkg.isModified).map((pkg: Package) =>
             pkg.output.map(output =>
                 this.rollupConfigurations.push({
@@ -53,10 +57,6 @@ export class MonoBundler {
                         output,
                     },
                 })))
-
-        if (!this.rollupConfigurations.length) {
-            this.log.success('All package bundles are present and up-to-date. Nothing to do.')
-        }
     }
 
     /**
