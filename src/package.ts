@@ -1,22 +1,13 @@
 import { readJSONSync } from 'fs-extra'
-import Hash from './libs/hash'
+import { Hash, fileSystem} from './libs'
 import Dependency from './dependency'
 import { OutputOptions } from 'rollup'
-import fileSystem from './libs/filesystem'
-import { Config } from './types/config' // todo
-
-interface Browser {
-    umd?: string,
-    esm?: string
-}
-
-interface Directories {
-    source?: string
-}
+import { Browser, Directories, BuildOptions, target, Targets  } from './types'
 
 export default class Package {
     name: string
     main: string
+    bundleFilename: string
     browser?: Browser
     dependencies: Dependency[]
     devDependencies: Dependency[]
@@ -32,15 +23,15 @@ export default class Package {
 
     /**
      * @param {string} pkgJsonFile
-     * @param {Config.BuildOptions} buildOptions
+     * @param {BuildOptions} buildOptions
      */
-    constructor(private readonly pkgJsonFile: string, protected buildOptions: Config.BuildOptions) {
+    constructor(private readonly pkgJsonFile: string, protected buildOptions: BuildOptions) {
     }
 
     /**
      *
      * @private
-     * @returns void
+     * @returns Package
      */
     async init(): Promise<Package> {
         Object.assign(this, readJSONSync(this.pkgJsonFile))
@@ -51,13 +42,15 @@ export default class Package {
             return this
         }
 
+        this.setBundleFilename()
+
         await this.setHash()
 
         this.setRollupInput()
 
         this.setRollupOutput()
 
-        this.isModified = this.checkIfModified()
+        this.checkIfModified()
 
         this.outputHashFile()
 
@@ -66,13 +59,28 @@ export default class Package {
 
     /**
      * @private
+     * @returns void
+     */
+    private setBundleFilename() {
+        this.bundleFilename = fileSystem.filename(this.main)
+    }
+
+    /**
+     * @private
      * @returns boolean
      */
     private checkIfModified() {
-        return !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+        this.isModified = !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+        return this.isModified
     }
 
+    /**
+     *
+     * @private
+     * @returns boolean
+     */
     private shouldBeIgnored() {
+        // todo message
         return this.isIgnored = !this.main
     }
 
@@ -91,28 +99,25 @@ export default class Package {
     /**
      *
      * @private
+     * @returns void
      */
     setRollupOutput(): void {
-        if (this.buildOptions.hashFileNames) {
-            this.output.push({
-                name: 'default',
-                file: fileSystem.join(this.packageDir, this.main),
-                format: Config.Target['default'].format,
-            })
-        }
+        this.buildOptions.hashFileNames && this.output.push({
+            name: 'default',
+            file: fileSystem.join(this.packageDir, this.main),
+            format: target('default').format,
+        })
 
-        Object.entries(Config.Target).map(async ([targetName, target]) => {
+        !this.buildOptions.watch && Targets.map(async (target) => {
             const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
 
             this.output.push({
-                name: targetName,
+                name: target.type,
                 file: !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash),
-                // @ts-ignore todo
-                format: Config.Target[targetName.toString()].format,
+                format: target.format,
             })
         })
     }
-
 
     /**
      *
@@ -123,7 +128,11 @@ export default class Package {
         this.hash = await new Hash(this.sourceDir).generate()
     }
 
-    outputHashFile() {
+    /**
+     * @private
+     * @returns void
+     */
+    private outputHashFile() {
         fileSystem.outputFileSync(fileSystem.join(fileSystem.dirname(fileSystem.join(this.packageDir, this.main)), '.' + this.hash), this.hash)
     }
 

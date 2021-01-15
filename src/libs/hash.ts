@@ -1,6 +1,6 @@
 import { hashElement } from 'folder-hash'
 
-export default class Hash {
+export class Hash {
     private hash: string = ''
 
     /**

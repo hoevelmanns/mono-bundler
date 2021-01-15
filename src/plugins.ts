@@ -1,12 +1,12 @@
 import nodeResolve from '@rollup/plugin-node-resolve'
 import babel from '@rollup/plugin-babel'
-import { Config } from 'config'
 import { Plugin } from 'rollup'
 import presets from './presets'
+import { BuildOptions } from './types'
 
 export default class Plugins {
 
-    constructor(private readonly options: Config.BuildOptions) {}
+    constructor(private readonly options: BuildOptions) {}
 
     /**
      *

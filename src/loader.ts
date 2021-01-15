@@ -1,6 +1,6 @@
 import { OutputOptions } from 'rollup'
-import fileSystem from './libs/filesystem'
-import { Config } from './types/config'
+import { fileSystem } from './libs'
+import { Bundle, target } from './types'
 
 const path = require('path')
 
@@ -10,27 +10,27 @@ export default class Loader {
 
     /**
      * @param {OutputOptions[]} outputs
+     * @param {string} filename
      */
-    constructor(private outputs: OutputOptions[]) {
+    constructor(private readonly outputs: OutputOptions[], private filename: string) {
         outputs.map(bundle => this.addImport(bundle))
     }
 
     /**
      *
-     * @param {string} targetPath
+     * @param {string} destPath
      * @param {string} hash
-     * @param {boolean} createHashFile
      * @returns void
      */
-    output(targetPath: string, hash?: string, createHashFile?: boolean): void {
-        const fileName = ['loader', hash, 'js'].filter(n => !!n).join('.')
-        fileSystem.outputFileSync(path.join(targetPath, fileName), this.imports.join('')) // todo get imports file from config
+    output(destPath: string, hash?: string): void {
+        const fileName = fileSystem.concat( this.filename, ['loader', hash].filter(n => !!n).join('.'))
+        fileSystem.outputFileSync(path.join(destPath, fileName), this.imports.join(''))
     }
 
     /**
      *
-     * @returns Loader
      * @param output
+     * @returns Loader
      */
     addImport(output: OutputOptions): Loader {
         const extName = path.extname(output.file).slice(1)
@@ -43,15 +43,22 @@ export default class Loader {
 
     /**
      *
-     * @returns string
      * @param {OutputOptions} output
+     * @returns string
      */
     protected jsImport(output: OutputOptions) {
-        const file = output.file.replace('..', '') // todo
-        // @ts-ignore todo
-        const moduleAttr = Config.Target[output.name].loaderAttribute
+        const stringifiedLoaderElementAttributes = this.stringifyElementAttributes(output.name)
+        return `elem = document.createElement('script');elem.src="${output.file}";${stringifiedLoaderElementAttributes}document.head.appendChild(elem);`
+    }
 
-        return `elem = document.createElement('script');elem.src="${file}";${moduleAttr};document.head.appendChild(elem);`
+    /**
+     *
+     * @protected
+     * @param {string} targetName
+     */
+    protected stringifyElementAttributes(targetName: string) {
+        return target(targetName).LoaderElemAttributes
+            .map(attr => `elem.${attr.name}=${attr.value};`)
     }
 
     /**
@@ -59,7 +66,7 @@ export default class Loader {
      * @param {Bundle} bundle
      * @returns string
      */
-    protected cssImport(bundle: Config.Bundle) {
+    protected cssImport(bundle: Bundle) {
         // todo
     }
 }

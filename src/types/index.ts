@@ -1,5 +1,2 @@
-import { Config } from "config"
-
-export {
-    Config
-}
+export * from './package'
+export * from './config'

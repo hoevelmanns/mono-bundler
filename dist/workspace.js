@@ -33,7 +33,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dependency_1 = __importDefault(require("./dependency"));
 const package_1 = __importDefault(require("./package"));
-const logger_1 = __importDefault(require("./libs/logger"));
+const libs_1 = require("./libs");
 const fb = __importStar(require("fast-glob"));
 class Workspace {
     constructor(buildOptions) {
@@ -46,16 +46,17 @@ class Workspace {
     init() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            this.log = new logger_1.default((_a = this.options) === null || _a === void 0 ? void 0 : _a.silent);
+            this.log = new libs_1.Logger((_a = this.options) === null || _a === void 0 ? void 0 : _a.silent);
             this.setGlobs();
             yield this.findPackages();
             yield this.findDependencies();
-            this.log.info(`Found ${this.packages.length} packages`);
-            this.log.info(`Found ${this.dependencies.length} dependencies`);
-            this.showModifiedPackages();
+            this.showReport();
             return this;
         });
     }
+    /**
+     * @returns Package[]
+     */
     get modifiedPackages() {
         return this.packages.filter(pkg => pkg.isModified);
     }
@@ -67,10 +68,16 @@ class Workspace {
     }
     /**
      * @private
+     * @returns Config.BuildOptions
      */
     get options() {
         return Object.assign(Object.assign({}, this.buildOptions), this.args);
     }
+    /**
+     *
+     * @private
+     * @returns void
+     */
     setGlobs() {
         const { packages } = this.buildOptions;
         this.globs = Array.isArray(packages) ? packages : [packages];
@@ -78,7 +85,7 @@ class Workspace {
     /**
      * Gets the list of package json files of defined projects
      *
-     * @returns void
+     * @returns Promise<void>
      */
     findPackages() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -106,8 +113,10 @@ class Workspace {
      * @private
      * @returns void
      */
-    showModifiedPackages() {
-        const { modifiedPackages } = this;
+    showReport() {
+        const { modifiedPackages, packages, dependencies } = this;
+        this.log.info(`Found packages: ${packages.length}`);
+        this.log.info(`Found dependencies: ${dependencies.length}`);
         modifiedPackages.length && this.log.info('Modified packages:');
         modifiedPackages.map(pkg => this.log.yellow(`- ${pkg.name}`));
     }

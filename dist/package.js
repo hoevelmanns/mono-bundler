@@ -8,18 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_extra_1 = require("fs-extra");
-const hash_1 = __importDefault(require("./libs/hash"));
-const filesystem_1 = __importDefault(require("./libs/filesystem"));
-const config_1 = require("./types/config"); // todo
+const libs_1 = require("./libs");
+const types_1 = require("./types");
 class Package {
     /**
      * @param {string} pkgJsonFile
-     * @param {Config.BuildOptions} buildOptions
+     * @param {BuildOptions} buildOptions
      */
     constructor(pkgJsonFile, buildOptions) {
         this.pkgJsonFile = pkgJsonFile;
@@ -31,7 +27,7 @@ class Package {
     /**
      *
      * @private
-     * @returns void
+     * @returns Package
      */
     init() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -40,22 +36,37 @@ class Package {
             if (this.shouldBeIgnored()) {
                 return this;
             }
+            this.setBundleFilename();
             yield this.setHash();
             this.setRollupInput();
             this.setRollupOutput();
-            this.isModified = this.checkIfModified();
+            this.checkIfModified();
             this.outputHashFile();
             return this;
         });
     }
     /**
      * @private
+     * @returns void
+     */
+    setBundleFilename() {
+        this.bundleFilename = libs_1.fileSystem.filename(this.main);
+    }
+    /**
+     * @private
      * @returns boolean
      */
     checkIfModified() {
-        return !filesystem_1.default.existsSync(`${this.distDir}/.${this.hash}`);
+        this.isModified = !libs_1.fileSystem.existsSync(`${this.distDir}/.${this.hash}`);
+        return this.isModified;
     }
+    /**
+     *
+     * @private
+     * @returns boolean
+     */
     shouldBeIgnored() {
+        // todo message
         return this.isIgnored = !this.main;
     }
     /**
@@ -64,29 +75,27 @@ class Package {
      * @returns void
      */
     setRollupInput() {
-        const inputTS = filesystem_1.default.join(this.sourceDir, 'index.ts');
-        const inputJS = filesystem_1.default.join(this.sourceDir, 'index.js');
-        this.input = filesystem_1.default.existsSync(inputTS) ? inputTS : filesystem_1.default.existsSync(inputJS) ? inputJS : null;
+        const inputTS = libs_1.fileSystem.join(this.sourceDir, 'index.ts');
+        const inputJS = libs_1.fileSystem.join(this.sourceDir, 'index.js');
+        this.input = libs_1.fileSystem.existsSync(inputTS) ? inputTS : libs_1.fileSystem.existsSync(inputJS) ? inputJS : null;
     }
     /**
      *
      * @private
+     * @returns void
      */
     setRollupOutput() {
-        if (this.buildOptions.hashFileNames) {
+        this.buildOptions.hashFileNames && this.output.push({
+            name: 'default',
+            file: libs_1.fileSystem.join(this.packageDir, this.main),
+            format: types_1.target('default').format,
+        });
+        !this.buildOptions.watch && types_1.Targets.map((target) => __awaiter(this, void 0, void 0, function* () {
+            const filename = libs_1.fileSystem.concat(libs_1.fileSystem.join(this.packageDir, this.main), target.extraFileExtension);
             this.output.push({
-                name: 'default',
-                file: filesystem_1.default.join(this.packageDir, this.main),
-                format: config_1.Config.Target['default'].format,
-            });
-        }
-        Object.entries(config_1.Config.Target).map(([targetName, target]) => __awaiter(this, void 0, void 0, function* () {
-            const filename = filesystem_1.default.concat(filesystem_1.default.join(this.packageDir, this.main), target.extraFileExtension);
-            this.output.push({
-                name: targetName,
-                file: !this.buildOptions.hashFileNames ? filename : filesystem_1.default.concat(filename, this.hash),
-                // @ts-ignore todo
-                format: config_1.Config.Target[targetName.toString()].format,
+                name: target.type,
+                file: !this.buildOptions.hashFileNames ? filename : libs_1.fileSystem.concat(filename, this.hash),
+                format: target.format,
             });
         }));
     }
@@ -97,11 +106,15 @@ class Package {
      */
     setHash() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.hash = yield new hash_1.default(this.sourceDir).generate();
+            this.hash = yield new libs_1.Hash(this.sourceDir).generate();
         });
     }
+    /**
+     * @private
+     * @returns void
+     */
     outputHashFile() {
-        filesystem_1.default.outputFileSync(filesystem_1.default.join(filesystem_1.default.dirname(filesystem_1.default.join(this.packageDir, this.main)), '.' + this.hash), this.hash);
+        libs_1.fileSystem.outputFileSync(libs_1.fileSystem.join(libs_1.fileSystem.dirname(libs_1.fileSystem.join(this.packageDir, this.main)), '.' + this.hash), this.hash);
     }
     /**
      *
@@ -111,8 +124,8 @@ class Package {
     setDirectories() {
         var _a, _b, _c;
         this.packageDir = this.pkgJsonFile.replace('/package.json', '');
-        this.sourceDir = filesystem_1.default.join(this.packageDir, (_b = (_a = this.directories) === null || _a === void 0 ? void 0 : _a.source) !== null && _b !== void 0 ? _b : 'src');
-        this.distDir = filesystem_1.default.dirname(filesystem_1.default.join(this.packageDir, (_c = this.main) !== null && _c !== void 0 ? _c : 'dist'));
+        this.sourceDir = libs_1.fileSystem.join(this.packageDir, (_b = (_a = this.directories) === null || _a === void 0 ? void 0 : _a.source) !== null && _b !== void 0 ? _b : 'src');
+        this.distDir = libs_1.fileSystem.dirname(libs_1.fileSystem.join(this.packageDir, (_c = this.main) !== null && _c !== void 0 ? _c : 'dist'));
     }
 }
 exports.default = Package;

@@ -23,8 +23,9 @@ class FileSystem {
     static outputFileSync = (dest: string, content: string) => outputFileSync(dest, content)
 
     static resolve = (...pathSegments: string[]) => path.resolve(...pathSegments)
+
+    static filename = (path: string) => path.split("/").pop()
 }
 
-const fileSystem = FileSystem
+export const fileSystem = FileSystem
 
-export default fileSystem

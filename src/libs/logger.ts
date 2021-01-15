@@ -9,7 +9,7 @@ const infoTxt = chalk.cyan
 const iconError = logSymbols.error
 const iconSuccess = logSymbols.success
 
-export default class Logger {
+export class Logger {
 
     constructor(public silent?: boolean) {
         const args = require('minimist')(process.argv.slice(2))

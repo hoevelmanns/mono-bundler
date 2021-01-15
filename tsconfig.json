@@ -12,12 +12,11 @@
         "paths": {
             "*": [
                 "node_modules/*",
-                "src/types/*"
             ]
         },
         "lib": ["es6", "es2018", "esnext"]
     },
     "include": [
-        "src/**/*.ts"
+        "src/**/index.ts"
     ]
 }

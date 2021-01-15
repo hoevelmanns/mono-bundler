@@ -1,35 +1,33 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const filesystem_1 = __importDefault(require("./libs/filesystem"));
-const config_1 = require("./types/config");
+const libs_1 = require("./libs");
+const types_1 = require("./types");
 const path = require('path');
 class Loader {
     /**
      * @param {OutputOptions[]} outputs
+     * @param {string} filename
      */
-    constructor(outputs) {
+    constructor(outputs, filename) {
         this.outputs = outputs;
+        this.filename = filename;
         this.imports = [];
         outputs.map(bundle => this.addImport(bundle));
     }
     /**
      *
-     * @param {string} targetPath
+     * @param {string} destPath
      * @param {string} hash
-     * @param {boolean} createHashFile
      * @returns void
      */
-    output(targetPath, hash, createHashFile) {
-        const fileName = ['loader', hash, 'js'].filter(n => !!n).join('.');
-        filesystem_1.default.outputFileSync(path.join(targetPath, fileName), this.imports.join('')); // todo get imports file from config
+    output(destPath, hash) {
+        const fileName = libs_1.fileSystem.concat(this.filename, ['loader', hash].filter(n => !!n).join('.'));
+        libs_1.fileSystem.outputFileSync(path.join(destPath, fileName), this.imports.join(''));
     }
     /**
      *
-     * @returns Loader
      * @param output
+     * @returns Loader
      */
     addImport(output) {
         const extName = path.extname(output.file).slice(1);
@@ -39,14 +37,21 @@ class Loader {
     }
     /**
      *
-     * @returns string
      * @param {OutputOptions} output
+     * @returns string
      */
     jsImport(output) {
-        const file = output.file.replace('..', ''); // todo
-        // @ts-ignore todo
-        const moduleAttr = config_1.Config.Target[output.name].loaderAttribute;
-        return `elem = document.createElement('script');elem.src="${file}";${moduleAttr};document.head.appendChild(elem);`;
+        const stringifiedLoaderElementAttributes = this.stringifyElementAttributes(output.name);
+        return `elem = document.createElement('script');elem.src="${output.file}";${stringifiedLoaderElementAttributes}document.head.appendChild(elem);`;
+    }
+    /**
+     *
+     * @protected
+     * @param {string} targetName
+     */
+    stringifyElementAttributes(targetName) {
+        return types_1.target(targetName).LoaderElemAttributes
+            .map(attr => `elem.${attr.name}=${attr.value};`);
     }
     /**
      *
