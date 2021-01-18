@@ -1,6 +1,6 @@
 {
     "name": "mono-bundler",
-    "version": "1.1.4",
+    "version": "1.1.6",
     "description": "Monorepo bundler based on rollup.js",
     "scripts": {
         "build": "tsc --outDir dist",

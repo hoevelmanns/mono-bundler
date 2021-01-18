@@ -87,7 +87,7 @@ export default class Workspace {
 
         this.dependencies = Array
             .from(new Set(this.dependencies).values())
-            .map(dep => new Dependency(dep as string[]))
+            .map(dep => new Dependency(<string[]>dep))
     }
 
     /**

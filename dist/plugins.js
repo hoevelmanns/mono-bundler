@@ -23,7 +23,7 @@ class Plugins {
                 babelHelpers: 'bundled',
                 extensions: ['.js', '.ts'],
                 // @ts-ignore todo
-                presets: presets_1.default[target.toString()],
+                presets: presets_1.default[target],
                 plugins: [
                     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
                     '@babel/plugin-proposal-class-properties',

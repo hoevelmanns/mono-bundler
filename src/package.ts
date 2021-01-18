@@ -108,8 +108,12 @@ export default class Package {
             format: target('default').format,
         })
 
-        !this.buildOptions.watch && Targets.map(async (target) => {
+        !this.buildOptions.watch && Targets.map(async target => {
             const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
+
+            if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {
+                return
+            }
 
             this.output.push({
                 name: target.type,

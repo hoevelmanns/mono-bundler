@@ -2,8 +2,6 @@ import { OutputOptions } from 'rollup'
 import { fileSystem } from './libs'
 import { Bundle, target } from './types'
 
-const path = require('path')
-
 export default class Loader {
 
     private imports: string[] = []
@@ -11,20 +9,24 @@ export default class Loader {
     /**
      * @param {OutputOptions[]} outputs
      * @param {string} filename
+     * @param {string} hash
      */
-    constructor(private readonly outputs: OutputOptions[], private filename: string) {
-        outputs.map(bundle => this.addImport(bundle))
+    constructor(private readonly outputs: OutputOptions[], private filename: string, private hash?: string) {
+        outputs.map(outputOption => {
+            const ignoreLoader = 'default' === outputOption.name && this.hash && !outputOption.file.includes(this.hash)
+
+            !ignoreLoader && this.addImport(outputOption)
+        })
     }
 
     /**
      *
      * @param {string} destPath
-     * @param {string} hash
      * @returns void
      */
-    output(destPath: string, hash?: string): void {
-        const fileName = fileSystem.concat( this.filename, ['loader', hash].filter(n => !!n).join('.'))
-        fileSystem.outputFileSync(path.join(destPath, fileName), this.imports.join(''))
+    output(destPath: string): void {
+        const fileName = fileSystem.concat(this.filename, ['loader', this.hash].filter(n => !!n).join('.'))
+        fileSystem.outputFileSync(fileSystem.join(destPath, fileName), this.imports.join(''))
     }
 
     /**
@@ -33,7 +35,7 @@ export default class Loader {
      * @returns Loader
      */
     addImport(output: OutputOptions): Loader {
-        const extName = path.extname(output.file).slice(1)
+        const extName = fileSystem.extname(output.file).slice(1)
 
         extName === 'js' && this.imports.push(this.jsImport(output))
         // todo extName === 'css' && this.imports.push(this.cssImport(bundle))

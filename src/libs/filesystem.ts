@@ -25,6 +25,8 @@ class FileSystem {
     static resolve = (...pathSegments: string[]) => path.resolve(...pathSegments)
 
     static filename = (path: string) => path.split("/").pop()
+
+    static extname = (p: string): string => path.extname(p)
 }
 
 export const fileSystem = FileSystem

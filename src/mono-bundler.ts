@@ -11,7 +11,7 @@ export class MonoBundler {
     private workspace = new Workspace(this.buildOptions)
     private readonly plugins = new Plugins(this.buildOptions)
     private readonly log = new Logger(this.buildOptions.silent)
-    protected readonly noRollupOptions: AvailableBuildOptions = ['packages', 'createLoaders', 'hashFileNames']
+    protected readonly noRollupOptions: AvailableBuildOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport']
 
     /**
      *
@@ -82,6 +82,6 @@ export class MonoBundler {
 
         this.workspace.options.createLoaders && !this.workspace.options.watch && this.workspace.modifiedPackages
             .map(async ({ distDir, output, hash, bundleFilename }) =>
-                new Loader(output, bundleFilename).output(distDir, hashFileNames && hash))
+                new Loader(output, bundleFilename, hashFileNames && hash).output(distDir))
     }
 }

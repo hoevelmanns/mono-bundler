@@ -17,8 +17,10 @@ export default async () => await new MonoBundler({
         'microapp2',
         'packages/*/microapps',
     ],
-    createLoaders: true,
-    hashFileNames: true,
+    createLoaders: true, // creates a loader file
+    hashFileNames: true, // adds a hash to the output file names
+    legacyBrowserSupport: true, // adds babel runtime polyfills for legacy browsers, e.g. IE11
+
     // rollup options
     plugins: [
     	// rollup plugins

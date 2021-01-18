@@ -23,5 +23,6 @@ FileSystem.join = (...paths) => path_1.default.join(...paths);
 FileSystem.outputFileSync = (dest, content) => fs_extra_2.outputFileSync(dest, content);
 FileSystem.resolve = (...pathSegments) => path_1.default.resolve(...pathSegments);
 FileSystem.filename = (path) => path.split("/").pop();
+FileSystem.extname = (p) => path_1.default.extname(p);
 exports.fileSystem = FileSystem;
 //# sourceMappingURL=filesystem.js.map

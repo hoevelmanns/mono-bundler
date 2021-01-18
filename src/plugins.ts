@@ -20,7 +20,7 @@ export default class Plugins {
                 babelHelpers: 'bundled',
                 extensions: ['.js', '.ts'],
                 // @ts-ignore todo
-                presets: presets[target.toString()],
+                presets: presets[<string>target],
                 plugins: [
                     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
                     '@babel/plugin-proposal-class-properties',

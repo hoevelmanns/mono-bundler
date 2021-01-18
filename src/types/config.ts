@@ -1,13 +1,5 @@
 import { InputOptions, ModuleFormat } from 'rollup'
 
-interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
-    packages: string | string[]
-    targets?: Targets,
-    createLoaders?: boolean,
-    hashFileNames?: boolean,
-    silent?: boolean
-}
-
 export type LoaderElemAttribute = {
     name: string,
     value: string
@@ -18,23 +10,21 @@ export type Target = {
     extraFileExtension: string,
     format: ModuleFormat & string,
     LoaderElemAttributes?: LoaderElemAttribute[]
-    omitLoader?: boolean
+    omitLoader?: boolean,
 }
 
-export type Targets = Target[]
+interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
+    packages: string | string[]
+    targets?: Target[],
+    createLoaders?: boolean,
+    hashFileNames?: boolean,
+    silent?: boolean,
+    legacyBrowserSupport?: boolean
+}
 
 export type BuildOptions = CustomRollupOptions
 
 export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
-
-/**
- *
- * @param {string} name
- * @returns Target
- */
-export const target = (name: string) => {
-    return Targets.find(t => t.type === name)
-}
 
 export const Targets: Target[] = [
     {
@@ -50,6 +40,15 @@ export const Targets: Target[] = [
         LoaderElemAttributes: [{ name: 'noModule', value: 'true' }],
     },
 ]
+
+/**
+ *
+ * @param {string} name
+ * @returns Target
+ */
+export const target = (name: string) => {
+    return Targets.find(t => t.type === name)
+}
 
 export interface Bundle {
     file: string

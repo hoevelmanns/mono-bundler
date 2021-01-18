@@ -92,6 +92,9 @@ class Package {
         });
         !this.buildOptions.watch && types_1.Targets.map((target) => __awaiter(this, void 0, void 0, function* () {
             const filename = libs_1.fileSystem.concat(libs_1.fileSystem.join(this.packageDir, this.main), target.extraFileExtension);
+            if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {
+                return;
+            }
             this.output.push({
                 name: target.type,
                 file: !this.buildOptions.hashFileNames ? filename : libs_1.fileSystem.concat(filename, this.hash),

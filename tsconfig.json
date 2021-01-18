@@ -11,7 +11,7 @@
         "baseUrl": ".",
         "paths": {
             "*": [
-                "node_modules/*",
+                "node_modules/*"
             ]
         },
         "lib": ["es6", "es2018", "esnext"]

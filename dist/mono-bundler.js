@@ -28,7 +28,7 @@ class MonoBundler {
         this.workspace = new workspace_1.default(this.buildOptions);
         this.plugins = new plugins_1.default(this.buildOptions);
         this.log = new libs_1.Logger(this.buildOptions.silent);
-        this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames'];
+        this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport'];
         /**
          *
          * @private
@@ -78,7 +78,7 @@ class MonoBundler {
     createLoaders() {
         const hashFileNames = this.workspace.options.hashFileNames;
         this.workspace.options.createLoaders && !this.workspace.options.watch && this.workspace.modifiedPackages
-            .map(({ distDir, output, hash, bundleFilename }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleFilename).output(distDir, hashFileNames && hash); }));
+            .map(({ distDir, output, hash, bundleFilename }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleFilename, hashFileNames && hash).output(distDir); }));
     }
 }
 exports.MonoBundler = MonoBundler;
