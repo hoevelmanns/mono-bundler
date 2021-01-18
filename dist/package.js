@@ -23,6 +23,7 @@ class Package {
         this.output = [];
         this.isModified = false;
         this.isIgnored = false;
+        this.log = new libs_1.Logger(this.buildOptions.silent);
     }
     /**
      *
@@ -66,8 +67,10 @@ class Package {
      * @returns boolean
      */
     shouldBeIgnored() {
-        // todo message
-        return this.isIgnored = !this.main;
+        var _a, _b;
+        this.isIgnored = !(((_a = this.main) === null || _a === void 0 ? void 0 : _a.length) > 0);
+        this.isIgnored && this.log.error(`Package "${(_b = this.name) !== null && _b !== void 0 ? _b : this.packageDir}" was skipped! Missing "main" field in package.json`);
+        return this.isIgnored;
     }
     /**
      *
@@ -90,7 +93,7 @@ class Package {
             file: libs_1.fileSystem.join(this.packageDir, this.main),
             format: types_1.target('default').format,
         });
-        !this.buildOptions.watch && types_1.Targets.map((target) => __awaiter(this, void 0, void 0, function* () {
+        types_1.Targets.map((target) => __awaiter(this, void 0, void 0, function* () {
             const filename = libs_1.fileSystem.concat(libs_1.fileSystem.join(this.packageDir, this.main), target.extraFileExtension);
             if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {
                 return;

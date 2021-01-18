@@ -13,7 +13,7 @@ import MonoBundler from 'mono-bundler'
 
 export default async () => await new MonoBundler({
     packages: [
-        'microapp1',
+        'components',
         'microapp2',
         'packages/*/microapps',
     ],

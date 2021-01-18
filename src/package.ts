@@ -1,5 +1,5 @@
 import { readJSONSync } from 'fs-extra'
-import { Hash, fileSystem} from './libs'
+import { Hash, fileSystem, Logger } from './libs'
 import Dependency from './dependency'
 import { OutputOptions } from 'rollup'
 import { Browser, Directories, BuildOptions, target, Targets  } from './types'
@@ -20,6 +20,7 @@ export default class Package {
     hash: string
     isModified = false
     isIgnored = false
+    private readonly log = new Logger(this.buildOptions.silent)
 
     /**
      * @param {string} pkgJsonFile
@@ -79,9 +80,10 @@ export default class Package {
      * @private
      * @returns boolean
      */
-    private shouldBeIgnored() {
-        // todo message
-        return this.isIgnored = !this.main
+    private shouldBeIgnored(): boolean {
+        this.isIgnored = !(this.main?.length > 0)
+        this.isIgnored && this.log.error(`Package "${this.name ?? this.packageDir}" was skipped! Missing "main" field in package.json`)
+        return this.isIgnored
     }
 
     /**
@@ -108,7 +110,7 @@ export default class Package {
             format: target('default').format,
         })
 
-        !this.buildOptions.watch && Targets.map(async target => {
+        Targets.map(async target => {
             const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
 
             if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {

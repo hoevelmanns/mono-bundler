@@ -42,8 +42,7 @@ class MonoBundler {
             if (!(this.workspace.hasModifiedPackages || this.workspace.options.watch)) {
                 this.log.success('All package bundles are present and up-to-date. Nothing to do.');
             }
-            packages
-                .map((pkg) => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
+            packages.map(pkg => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output.name),
                 input: pkg.input,
                 external,

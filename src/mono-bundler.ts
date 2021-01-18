@@ -1,6 +1,5 @@
 import { RollupOptions } from 'rollup'
 import Workspace from './workspace'
-import Package from './package'
 import { Logger } from './libs'
 import Plugins from './plugins'
 import Loader from './loader'
@@ -48,18 +47,17 @@ export class MonoBundler {
             this.log.success('All package bundles are present and up-to-date. Nothing to do.')
         }
 
-        packages
-            .map((pkg: Package) =>
-                pkg.output.map(output =>
-                    this.rollupConfigurations.push({
-                        ...this.cleanRollupOptions,
-                        ...{
-                            plugins: this.plugins.get(output.name),
-                            input: pkg.input,
-                            external,
-                            output,
-                        },
-                    })))
+        packages.map(pkg =>
+            pkg.output.map(output =>
+                this.rollupConfigurations.push({
+                    ...this.cleanRollupOptions,
+                    ...{
+                        plugins: this.plugins.get(output.name),
+                        input: pkg.input,
+                        external,
+                        output,
+                    },
+                })))
     }
 
     /**
