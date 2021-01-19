@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -12,18 +18,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_extra_1 = require("fs-extra");
 const libs_1 = require("./libs");
 const types_1 = require("./types");
-class Package {
+const tsyringe_1 = require("tsyringe");
+let Package = class Package {
     /**
      * @param {string} pkgJsonFile
-     * @param {BuildOptions} buildOptions
      */
-    constructor(pkgJsonFile, buildOptions) {
+    constructor(pkgJsonFile) {
         this.pkgJsonFile = pkgJsonFile;
-        this.buildOptions = buildOptions;
         this.output = [];
         this.isModified = false;
         this.isIgnored = false;
-        this.log = new libs_1.Logger(this.buildOptions.silent);
+        this.log = tsyringe_1.container.resolve('Logger');
+        this.buildOptions = tsyringe_1.container.resolve('BuildOptions');
     }
     /**
      *
@@ -133,6 +139,9 @@ class Package {
         this.sourceDir = libs_1.fileSystem.join(this.packageDir, (_b = (_a = this.directories) === null || _a === void 0 ? void 0 : _a.source) !== null && _b !== void 0 ? _b : 'src');
         this.distDir = libs_1.fileSystem.dirname(libs_1.fileSystem.join(this.packageDir, (_c = this.main) !== null && _c !== void 0 ? _c : 'dist'));
     }
-}
+};
+Package = __decorate([
+    tsyringe_1.injectable()
+], Package);
 exports.default = Package;
 //# sourceMappingURL=package.js.map

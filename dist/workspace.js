@@ -33,20 +33,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dependency_1 = __importDefault(require("./dependency"));
 const package_1 = __importDefault(require("./package"));
-const libs_1 = require("./libs");
 const fb = __importStar(require("fast-glob"));
+const tsyringe_1 = require("tsyringe");
 class Workspace {
-    constructor(buildOptions) {
-        this.buildOptions = buildOptions;
+    constructor() {
         this.packages = [];
         this.dependencies = [];
         this.globs = [];
-        this.args = require('minimist')(process.argv.slice(2));
+        this.log = tsyringe_1.container.resolve('Logger');
+        this.buildOptions = tsyringe_1.container.resolve('BuildOptions');
     }
     init() {
-        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            this.log = new libs_1.Logger((_a = this.options) === null || _a === void 0 ? void 0 : _a.silent);
             this.setGlobs();
             yield this.findPackages();
             yield this.findDependencies();
@@ -67,13 +65,6 @@ class Workspace {
         return this.modifiedPackages.length > 0;
     }
     /**
-     * @private
-     * @returns Config.BuildOptions
-     */
-    get options() {
-        return Object.assign(Object.assign({}, this.buildOptions), this.args);
-    }
-    /**
      *
      * @private
      * @returns void
@@ -91,7 +82,7 @@ class Workspace {
         return __awaiter(this, void 0, void 0, function* () {
             yield Promise.all(this.globs.map((glob) => __awaiter(this, void 0, void 0, function* () {
                 const packageLocations = fb.sync(`${glob}/package.json`);
-                yield Promise.all(packageLocations.map((pkgJson) => __awaiter(this, void 0, void 0, function* () { return yield this.packages.push(yield new package_1.default(pkgJson, this.options).init()); })));
+                yield Promise.all(packageLocations.map((pkgJson) => __awaiter(this, void 0, void 0, function* () { return yield this.packages.push(yield new package_1.default(pkgJson).init()); })));
             })));
         });
     }

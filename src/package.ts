@@ -2,8 +2,10 @@ import { readJSONSync } from 'fs-extra'
 import { Hash, fileSystem, Logger } from './libs'
 import Dependency from './dependency'
 import { OutputOptions } from 'rollup'
-import { Browser, Directories, BuildOptions, target, Targets  } from './types'
+import { Browser, Directories, BuildOptions, target, Targets } from './types'
+import { container, injectable } from 'tsyringe'
 
+@injectable()
 export default class Package {
     name: string
     main: string
@@ -20,13 +22,13 @@ export default class Package {
     hash: string
     isModified = false
     isIgnored = false
-    private readonly log = new Logger(this.buildOptions.silent)
+    private readonly log: Logger = container.resolve('Logger')
+    private readonly buildOptions: BuildOptions = container.resolve('BuildOptions')
 
     /**
      * @param {string} pkgJsonFile
-     * @param {BuildOptions} buildOptions
      */
-    constructor(private readonly pkgJsonFile: string, protected buildOptions: BuildOptions) {
+    constructor(private readonly pkgJsonFile: string) {
     }
 
     /**

@@ -3,20 +3,16 @@ import Package from './package'
 import { Logger } from './libs'
 import * as fb from 'fast-glob'
 import { BuildOptions } from './types'
+import { container } from 'tsyringe'
 
 export default class Workspace {
     packages: Package[] = []
     dependencies: (Dependency | [string, unknown])[] = []
     private globs: string[] = []
-    private log: Logger
-    private readonly args = require('minimist')(process.argv.slice(2))
-
-    constructor(protected readonly buildOptions: BuildOptions) {
-    }
+    protected readonly log: Logger = container.resolve('Logger')
+    protected readonly buildOptions: BuildOptions = container.resolve('BuildOptions')
 
     async init(): Promise<Workspace> {
-
-        this.log = new Logger(this.options?.silent)
 
         this.setGlobs()
 
@@ -44,14 +40,6 @@ export default class Workspace {
     }
 
     /**
-     * @private
-     * @returns Config.BuildOptions
-     */
-    get options(): BuildOptions {
-        return { ...this.buildOptions, ...this.args }
-    }
-
-    /**
      *
      * @private
      * @returns void
@@ -69,7 +57,7 @@ export default class Workspace {
     private async findPackages(): Promise<void> {
         await Promise.all(this.globs.map(async glob => {
             const packageLocations = fb.sync(`${glob}/package.json`)
-            await Promise.all(packageLocations.map(async pkgJson => await this.packages.push(await new Package(pkgJson, this.options).init())))
+            await Promise.all(packageLocations.map(async pkgJson => await this.packages.push(await new Package(pkgJson).init())))
         }))
     }
 

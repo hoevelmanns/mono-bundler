@@ -3,10 +3,11 @@ import babel from '@rollup/plugin-babel'
 import { Plugin } from 'rollup'
 import presets from './presets'
 import { BuildOptions } from './types'
+import { inject } from 'tsyringe'
 
 export default class Plugins {
 
-    constructor(private readonly options: BuildOptions) {}
+    constructor(@inject('BuildOptions') protected readonly buildOptions: BuildOptions) {}
 
     /**
      *
@@ -28,6 +29,6 @@ export default class Plugins {
             }),
         ]
 
-        return this.options.plugins?.length ? [...internalPlugins, ...this.options.plugins] : internalPlugins
+        return this.buildOptions.plugins?.length ? [...internalPlugins, ...this.buildOptions.plugins] : internalPlugins
     }
 }
