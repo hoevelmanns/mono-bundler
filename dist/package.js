@@ -45,12 +45,21 @@ let Package = class Package {
             }
             this.setBundleFilename();
             yield this.setHash();
+            yield this.setTsConfig();
             this.setRollupInput();
             this.setRollupOutput();
             this.checkIfModified();
             this.outputHashFile();
             return this;
         });
+    }
+    /**
+     *
+     * @private
+     */
+    setTsConfig() {
+        const tsConfigFile = libs_1.fileSystem.join(this.packageDir, 'tsconfig.json');
+        this.tsConfigPath = libs_1.fileSystem.existsSync(tsConfigFile) && tsConfigFile;
     }
     /**
      * @private
@@ -61,11 +70,13 @@ let Package = class Package {
     }
     /**
      * @private
-     * @returns boolean
+     * @returns void
      */
     checkIfModified() {
-        this.isModified = !libs_1.fileSystem.existsSync(`${this.distDir}/.${this.hash}`);
-        return this.isModified;
+        this.isModified = [
+            ...this.output.map(o => libs_1.fileSystem.existsSync(o.file)),
+            libs_1.fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+        ].includes(false);
     }
     /**
      *

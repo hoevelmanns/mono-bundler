@@ -1,10 +1,10 @@
-import { RollupOptions } from 'rollup'
+import {RollupOptions} from 'rollup'
 import Workspace from './workspace'
-import { Logger } from './libs'
+import {Logger} from './libs'
 import Plugins from './plugins'
 import Loader from './loader'
-import { AvailableBuildOptions, BuildOptions } from './types'
-import { container } from 'tsyringe'
+import {AvailableBuildOptions, BuildOptions} from './types'
+import {container} from 'tsyringe'
 import minimist from 'minimist'
 
 export class MonoBundler {
@@ -20,8 +20,8 @@ export class MonoBundler {
      * @param {BuildOptions} options
      */
     constructor(private readonly options: BuildOptions) {
-        container.register<BuildOptions>('BuildOptions', { useValue: this.buildOptions })
-        container.register<Logger>('Logger', { useValue: this.log = new Logger(this.buildOptions?.silent) })
+        container.register<BuildOptions>('BuildOptions', {useValue: this.buildOptions})
+        container.register<Logger>('Logger', {useValue: this.log = new Logger(this.buildOptions?.silent)})
     }
 
     /**
@@ -29,7 +29,7 @@ export class MonoBundler {
      * @returns BuildOptions
      */
     get buildOptions(): BuildOptions {
-        return { ...this.options, ...this.args }
+        return {...this.options, ...this.args}
     }
 
     async build(): Promise<RollupOptions[]> {
@@ -73,7 +73,7 @@ export class MonoBundler {
                 this.rollupConfigurations.push({
                     ...this.cleanRollupOptions,
                     ...{
-                        plugins: this.plugins.get(output.name),
+                        plugins: this.plugins.get(output, pkg),
                         input: pkg.input,
                         external,
                         output,
@@ -86,7 +86,7 @@ export class MonoBundler {
      * @private
      */
     private get cleanRollupOptions() {
-        const rollupOptions = { ...this.buildOptions }
+        const rollupOptions = {...this.buildOptions}
         this.noRollupOptions.map(key => Reflect.deleteProperty(rollupOptions, key))
         Object.keys(this.args).map(key => Reflect.deleteProperty(rollupOptions, key))
         return rollupOptions
@@ -98,11 +98,11 @@ export class MonoBundler {
      * @returns void
      */
     private createLoaders(): void {
-        const { buildOptions } = this
+        const {buildOptions} = this
         const hashFileNames = buildOptions.hashFileNames
 
         buildOptions.createLoaders && !buildOptions.watch && this.workspace.modifiedPackages
-            .map(async ({ distDir, output, hash, bundleFilename }) =>
+            .map(async ({distDir, output, hash, bundleFilename}) =>
                 new Loader(output, bundleFilename, hashFileNames && hash).output(distDir))
     }
 }

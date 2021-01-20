@@ -45,7 +45,7 @@ class MonoBundler {
                 this.log.success('All package bundles are present and up-to-date. Nothing to do.');
             }
             packages.map(pkg => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
-                plugins: this.plugins.get(output.name),
+                plugins: this.plugins.get(output, pkg),
                 input: pkg.input,
                 external,
                 output,

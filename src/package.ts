@@ -1,18 +1,18 @@
-import { readJSONSync } from 'fs-extra'
-import { Hash, fileSystem, Logger } from './libs'
+import {readJSONSync} from 'fs-extra'
+import {Hash, fileSystem, Logger} from './libs'
 import Dependency from './dependency'
-import { OutputOptions } from 'rollup'
-import { Browser, Directories, BuildOptions, target, Targets } from './types'
-import { container, injectable } from 'tsyringe'
+import {OutputOptions} from 'rollup'
+import {Browser, Directories, BuildOptions, target, Targets} from './types'
+import {container, injectable} from 'tsyringe'
 
 @injectable()
 export default class Package {
     name: string
     main: string
     bundleFilename: string
-    browser?: Browser
     dependencies: Dependency[]
     devDependencies: Dependency[]
+    tsConfigPath: string
     packageDir: string
     sourceDir: string
     distDir: string
@@ -49,6 +49,8 @@ export default class Package {
 
         await this.setHash()
 
+        await this.setTsConfig()
+
         this.setRollupInput()
 
         this.setRollupOutput()
@@ -61,6 +63,15 @@ export default class Package {
     }
 
     /**
+     *
+     * @private
+     */
+    private setTsConfig(): void {
+        const tsConfigFile = fileSystem.join(this.packageDir, 'tsconfig.json')
+        this.tsConfigPath = fileSystem.existsSync(tsConfigFile) && tsConfigFile
+    }
+
+    /**
      * @private
      * @returns void
      */
@@ -70,11 +81,13 @@ export default class Package {
 
     /**
      * @private
-     * @returns boolean
+     * @returns void
      */
     private checkIfModified() {
-        this.isModified = !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
-        return this.isModified
+        this.isModified = [
+            ...this.output.map(o => fileSystem.existsSync(o.file)),
+            fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+        ].includes(false)
     }
 
     /**

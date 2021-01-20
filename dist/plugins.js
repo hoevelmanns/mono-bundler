@@ -16,24 +16,33 @@ const plugin_node_resolve_1 = __importDefault(require("@rollup/plugin-node-resol
 const plugin_babel_1 = __importDefault(require("@rollup/plugin-babel"));
 const presets_1 = __importDefault(require("./presets"));
 const tsyringe_1 = require("tsyringe");
+const plugin_typescript_1 = __importDefault(require("@rollup/plugin-typescript"));
 let Plugins = class Plugins {
     constructor(buildOptions) {
         this.buildOptions = buildOptions;
     }
     /**
      *
-     * @param {string} target
+     * @param {OutputOptions} output
+     * @param {Package} pkg
      * @returns Plugin[]
      */
-    get(target) {
+    get(output, pkg) {
         var _a;
+        console.log(pkg.packageDir, pkg.tsConfigPath);
         const internalPlugins = [
-            plugin_node_resolve_1.default({ extensions: ['.js', '.ts'] }),
+            plugin_node_resolve_1.default({ rootDir: pkg.packageDir, extensions: ['.ts', '.js'] }),
+            pkg.tsConfigPath && plugin_typescript_1.default({ tsconfig: pkg.tsConfigPath }),
+            //json(),
+            // todo remove from pkg.json commonjs(), // todo condition
+            // todo remove from pkg.json json(), // todo condition -> if in tsconfig
             plugin_babel_1.default({
+                root: pkg.packageDir,
+                exclude: /node_modules/,
                 babelHelpers: 'bundled',
                 extensions: ['.js', '.ts'],
                 // @ts-ignore todo
-                presets: presets_1.default[target],
+                presets: presets_1.default[output.name],
                 plugins: [
                     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
                     '@babel/plugin-proposal-class-properties',
@@ -47,4 +56,17 @@ Plugins = __decorate([
     __param(0, tsyringe_1.inject('BuildOptions'))
 ], Plugins);
 exports.default = Plugins;
+/*
+exclude: 'node_modules/**',
+            babelHelpers: 'bundled',
+            extensions: ['.ts', '.js'],
+            presets: [
+                '@babel/preset-typescript',
+            ],
+            plugins: [
+                ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
+                '@babel/plugin-proposal-class-properties',
+            ],
+        }),
+ */ 
 //# sourceMappingURL=plugins.js.map
