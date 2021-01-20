@@ -28,7 +28,7 @@ class MonoBundler {
         var _a;
         this.options = options;
         this.rollupConfigurations = [];
-        this.args = minimist_1.default(process.argv.slice(2));
+        this.args = MonoBundler.transformedArgs;
         this.plugins = new plugins_1.default(this.buildOptions);
         this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport'];
         /**
@@ -60,6 +60,15 @@ class MonoBundler {
      */
     get buildOptions() {
         return Object.assign(Object.assign({}, this.options), this.args);
+    }
+    /**
+     * @private
+     */
+    static get transformedArgs() {
+        var _a;
+        const args = minimist_1.default(process.argv.slice(2));
+        args.watch = (_a = args.w) !== null && _a !== void 0 ? _a : args.watch;
+        return args;
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {

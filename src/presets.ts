@@ -16,7 +16,7 @@ const legacyPresets = [
     ],
 ]
 
-export default {
+export const presets: any = {
     default: defaultPresets,
     legacy: legacyPresets
 }

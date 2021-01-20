@@ -5,13 +5,13 @@ import Plugins from './plugins'
 import Loader from './loader'
 import {AvailableBuildOptions, BuildOptions} from './types'
 import {container} from 'tsyringe'
-import minimist from 'minimist'
+import minimist, {ParsedArgs} from 'minimist'
 
 export class MonoBundler {
     protected rollupConfigurations: RollupOptions[] = []
     protected workspace: Workspace
     protected readonly log: Logger
-    protected readonly args = minimist(process.argv.slice(2))
+    protected readonly args = MonoBundler.transformedArgs
     protected readonly plugins = new Plugins(this.buildOptions)
     protected readonly noRollupOptions: AvailableBuildOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport']
 
@@ -28,8 +28,17 @@ export class MonoBundler {
      * @private
      * @returns BuildOptions
      */
-    get buildOptions(): BuildOptions {
+    private get buildOptions(): BuildOptions {
         return {...this.options, ...this.args}
+    }
+
+    /**
+     * @private
+     */
+    private static get transformedArgs(): Partial<BuildOptions & ParsedArgs> {
+        const args = minimist(process.argv.slice(2))
+        args.watch = args.w ?? args.watch
+        return args
     }
 
     async build(): Promise<RollupOptions[]> {
@@ -49,7 +58,6 @@ export class MonoBundler {
      * @returns void
      */
     async init() {
-
         this.workspace = await new Workspace().init()
     }
 

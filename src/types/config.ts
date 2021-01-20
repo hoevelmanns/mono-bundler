@@ -19,7 +19,7 @@ interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
     createLoaders?: boolean,
     hashFileNames?: boolean,
     silent?: boolean,
-    legacyBrowserSupport?: boolean
+    legacyBrowserSupport?: boolean,
 }
 
 export type BuildOptions = CustomRollupOptions

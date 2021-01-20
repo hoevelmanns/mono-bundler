@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.presets = void 0;
 const defaultPresets = [
     '@babel/preset-typescript',
 ];
@@ -16,7 +17,7 @@ const legacyPresets = [
         },
     ],
 ];
-exports.default = {
+exports.presets = {
     default: defaultPresets,
     legacy: legacyPresets
 };
