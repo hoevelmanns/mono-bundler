@@ -6,8 +6,6 @@ import {BuildOptions} from './types'
 import {inject} from 'tsyringe'
 import typescript from "@rollup/plugin-typescript";
 import Package from "./package";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
 
 export default class Plugins {
 
@@ -40,16 +38,3 @@ export default class Plugins {
         return this.buildOptions.plugins?.length ? [...internalPlugins, ...this.buildOptions.plugins] : internalPlugins
     }
 }
-/*
-exclude: 'node_modules/**',
-            babelHelpers: 'bundled',
-            extensions: ['.ts', '.js'],
-            presets: [
-                '@babel/preset-typescript',
-            ],
-            plugins: [
-                ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
-                '@babel/plugin-proposal-class-properties',
-            ],
-        }),
- */

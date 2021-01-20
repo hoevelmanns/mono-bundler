@@ -2,7 +2,7 @@ import {readJSONSync} from 'fs-extra'
 import {Hash, fileSystem, Logger} from './libs'
 import Dependency from './dependency'
 import {OutputOptions} from 'rollup'
-import {Browser, Directories, BuildOptions, target, Targets} from './types'
+import {Browser, Directories, BuildOptions, target, Targets, Engines, Scripts} from './types'
 import {container, injectable} from 'tsyringe'
 
 @injectable()
@@ -12,6 +12,8 @@ export default class Package {
     bundleFilename: string
     dependencies: Dependency[]
     devDependencies: Dependency[]
+    engines: Engines
+    scripts: Scripts
     tsConfigPath: string
     packageDir: string
     sourceDir: string

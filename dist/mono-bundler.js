@@ -27,7 +27,7 @@ class MonoBundler {
     constructor(options) {
         var _a;
         this.options = options;
-        this.rollupConfigurations = [];
+        this.rollupConfig = [];
         this.args = MonoBundler.transformedArgs;
         this.plugins = new plugins_1.default(this.buildOptions);
         this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport'];
@@ -36,15 +36,12 @@ class MonoBundler {
          * @private
          * @returns void
          */
-        this.buildRollupConfig = () => {
-            const packages = this.buildOptions.watch
-                ? this.workspace.packages
-                : this.workspace.packages.filter(pkg => pkg.isModified);
+        this.generateRollupConfig = () => {
+            const packages = this.workspace.packages
+                .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build'])
+                .filter(pkg => this.buildOptions.watch || pkg.isModified);
             const external = (id) => id.includes('core-js'); // todo merge with this.config
-            if (!(this.workspace.hasModifiedPackages || this.buildOptions.watch)) {
-                this.log.success('All package bundles are present and up-to-date. Nothing to do.');
-            }
-            packages.map(pkg => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
+            packages.map(pkg => pkg.output.map(output => this.rollupConfig.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output, pkg),
                 input: pkg.input,
                 external,
@@ -59,7 +56,10 @@ class MonoBundler {
      * @returns BuildOptions
      */
     get buildOptions() {
-        return Object.assign(Object.assign({}, this.options), this.args);
+        const { options } = this;
+        // todo config switch options.createLoaders = !options.watch
+        // todo config switch options.legacyBrowserSupport = !options.watch
+        return Object.assign(Object.assign({}, options), this.args);
     }
     /**
      * @private
@@ -72,20 +72,34 @@ class MonoBundler {
     }
     build() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.init();
+            this.workspace = yield new workspace_1.default().init();
             this.createLoaders();
-            this.buildRollupConfig();
-            return this.rollupConfigurations.length
-                ? this.rollupConfigurations
-                : process.exit(0);
+            if (!(this.workspace.hasModifiedPackages || this.buildOptions.watch)) {
+                this.log.success('All package bundles are present and up-to-date. Nothing to do.');
+                process.exit();
+            }
+            yield this.runPackageScripts();
+            this.generateRollupConfig();
+            return this.rollupConfig.length ? this.rollupConfig : process.exit();
         });
     }
     /**
-     * @returns void
+     *
+     * @private
      */
-    init() {
+    runPackageScripts() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.workspace = yield new workspace_1.default().init();
+            const command = this.buildOptions.watch ? 'watch' : 'build';
+            const packages = this.workspace.modifiedPackages
+                .filter(pkg => { var _a; return ((_a = pkg.scripts[command]) === null || _a === void 0 ? void 0 : _a.length) > 0; });
+            const runScripts = packages.map(pkg => require('@npmcli/run-script')({
+                event: command,
+                path: pkg.packageDir,
+                stdio: 'inherit'
+            }));
+            return this.buildOptions.watch
+                ? Promise.resolve(runScripts)
+                : Promise.all(runScripts);
         });
     }
     /**

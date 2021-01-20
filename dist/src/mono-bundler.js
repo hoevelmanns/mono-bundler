@@ -24,7 +24,7 @@ class MonoBundler {
      */
     constructor(buildOptions) {
         this.buildOptions = buildOptions;
-        this.rollupConfigurations = [];
+        this.rollupConfig = [];
         this.workspace = new workspace_1.default(this.buildOptions);
         this.plugins = new plugins_1.default(this.buildOptions);
         this.log = new libs_1.Logger(this.buildOptions.silent);
@@ -43,7 +43,7 @@ class MonoBundler {
                 this.log.success('All package bundles are present and up-to-date. Nothing to do.');
             }
             packages
-                .map((pkg) => pkg.output.map(output => this.rollupConfigurations.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
+                .map((pkg) => pkg.output.map(output => this.rollupConfig.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output.name),
                 input: pkg.input,
                 external,

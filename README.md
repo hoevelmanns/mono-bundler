@@ -23,9 +23,9 @@ export default async () => await new MonoBundler({
 
     // rollup options
     plugins: [
-    	// rollup plugins
+        // rollup plugins
     ],
-}).build()
+}).run()
 ```
 
 For further options, see: [Rollup Options](https://rollupjs.org/guide/en/#big-list-of-options)

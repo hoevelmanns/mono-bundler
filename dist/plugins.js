@@ -51,17 +51,4 @@ Plugins = __decorate([
     __param(0, tsyringe_1.inject('BuildOptions'))
 ], Plugins);
 exports.default = Plugins;
-/*
-exclude: 'node_modules/**',
-            babelHelpers: 'bundled',
-            extensions: ['.ts', '.js'],
-            presets: [
-                '@babel/preset-typescript',
-            ],
-            plugins: [
-                ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
-                '@babel/plugin-proposal-class-properties',
-            ],
-        }),
- */ 
 //# sourceMappingURL=plugins.js.map
