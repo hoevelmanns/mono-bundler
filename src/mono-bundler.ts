@@ -1,16 +1,15 @@
-import {RollupOptions} from 'rollup'
 import Workspace from './workspace'
 import {Logger} from './libs'
 import Plugins from './plugins'
 import Loader from './loader'
-import {AvailableBuildOptions, BuildOptions} from './types'
+import {AvailableBuildOptions, BuildOptions, MonoRollupOptions, TransformedArgs} from './types'
 import {container} from 'tsyringe'
-import minimist, {ParsedArgs} from 'minimist'
+import minimist from 'minimist'
 
 export class MonoBundler {
-    protected rollupConfig: RollupOptions[] = []
     protected workspace: Workspace
     protected readonly log: Logger
+    protected monoRollupOptions: MonoRollupOptions = []
     protected readonly args = MonoBundler.transformedArgs
     protected readonly plugins = new Plugins(this.buildOptions)
     protected readonly noRollupOptions: AvailableBuildOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport']
@@ -37,14 +36,15 @@ export class MonoBundler {
 
     /**
      * @private
+     * @returns TransformedArgs
      */
-    private static get transformedArgs(): Partial<BuildOptions & ParsedArgs> {
+    private static get transformedArgs(): TransformedArgs {
         const args = minimist(process.argv.slice(2))
-        args.watch = args.w ?? args.watch
+        args.watch = args.w ?? args.watch ?? false
         return args
     }
 
-    async build(): Promise<RollupOptions[]> {
+    async build(): Promise<MonoRollupOptions> {
 
         this.workspace = await new Workspace().init()
 
@@ -57,9 +57,11 @@ export class MonoBundler {
 
         await this.runPackageScripts()
 
+        // todo runNCC on packages with "ncc"-field
+
         this.generateRollupConfig()
 
-        return this.rollupConfig.length ? this.rollupConfig : process.exit()
+        return this.monoRollupOptions.length ? this.monoRollupOptions : process.exit()
     }
 
     /**
@@ -67,9 +69,7 @@ export class MonoBundler {
      * @private
      */
     private async runPackageScripts(): Promise<any[]> {
-
-        const command = this.buildOptions.watch ? 'watch' : 'build'
-
+        const command = this.buildOptions.watch ? 'watch' : 'build' // todo config
         const packages = this.workspace.modifiedPackages
             .filter(pkg => pkg.scripts[command]?.length > 0)
 
@@ -91,14 +91,14 @@ export class MonoBundler {
      */
     private generateRollupConfig = (): void => {
         const packages = this.workspace.packages
-            .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build'])
+            .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build']) // todo set in package.ts "runScript.build" "runScript.watch"
             .filter(pkg => this.buildOptions.watch || pkg.isModified)
 
         const external = (id: string) => id.includes('core-js') // todo merge with this.config
 
         packages.map(pkg =>
             pkg.output.map(output =>
-                this.rollupConfig.push({
+                this.monoRollupOptions.push({
                     ...this.cleanRollupOptions,
                     ...{
                         plugins: this.plugins.get(output, pkg),

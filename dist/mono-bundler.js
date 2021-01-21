@@ -27,7 +27,7 @@ class MonoBundler {
     constructor(options) {
         var _a;
         this.options = options;
-        this.rollupConfig = [];
+        this.monoRollupOptions = [];
         this.args = MonoBundler.transformedArgs;
         this.plugins = new plugins_1.default(this.buildOptions);
         this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport'];
@@ -38,10 +38,10 @@ class MonoBundler {
          */
         this.generateRollupConfig = () => {
             const packages = this.workspace.packages
-                .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build'])
+                .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build']) // todo set in package.ts "runScript.build" "runScript.watch"
                 .filter(pkg => this.buildOptions.watch || pkg.isModified);
             const external = (id) => id.includes('core-js'); // todo merge with this.config
-            packages.map(pkg => pkg.output.map(output => this.rollupConfig.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
+            packages.map(pkg => pkg.output.map(output => this.monoRollupOptions.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output, pkg),
                 input: pkg.input,
                 external,
@@ -63,11 +63,12 @@ class MonoBundler {
     }
     /**
      * @private
+     * @returns TransformedArgs
      */
     static get transformedArgs() {
-        var _a;
+        var _a, _b;
         const args = minimist_1.default(process.argv.slice(2));
-        args.watch = (_a = args.w) !== null && _a !== void 0 ? _a : args.watch;
+        args.watch = (_b = (_a = args.w) !== null && _a !== void 0 ? _a : args.watch) !== null && _b !== void 0 ? _b : false;
         return args;
     }
     build() {
@@ -79,8 +80,9 @@ class MonoBundler {
                 process.exit();
             }
             yield this.runPackageScripts();
+            // todo runNCC on packages with "ncc"-field
             this.generateRollupConfig();
-            return this.rollupConfig.length ? this.rollupConfig : process.exit();
+            return this.monoRollupOptions.length ? this.monoRollupOptions : process.exit();
         });
     }
     /**
@@ -89,7 +91,7 @@ class MonoBundler {
      */
     runPackageScripts() {
         return __awaiter(this, void 0, void 0, function* () {
-            const command = this.buildOptions.watch ? 'watch' : 'build';
+            const command = this.buildOptions.watch ? 'watch' : 'build'; // todo config
             const packages = this.workspace.modifiedPackages
                 .filter(pkg => { var _a; return ((_a = pkg.scripts[command]) === null || _a === void 0 ? void 0 : _a.length) > 0; });
             const runScripts = packages.map(pkg => require('@npmcli/run-script')({

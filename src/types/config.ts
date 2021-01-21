@@ -1,4 +1,7 @@
-import { InputOptions, ModuleFormat } from 'rollup'
+import { InputOptions, ModuleFormat, RollupOptions } from 'rollup'
+import {ParsedArgs} from "minimist";
+
+export type MonoRollupOptions = RollupOptions[]
 
 export type LoaderElemAttribute = {
     name: string,
@@ -23,6 +26,8 @@ interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
 }
 
 export type BuildOptions = CustomRollupOptions
+
+export type TransformedArgs = Partial<BuildOptions & ParsedArgs>
 
 export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
 
