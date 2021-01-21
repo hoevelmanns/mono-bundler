@@ -9,4 +9,3 @@ class Dependency {
     }
 }
 exports.default = Dependency;
-//# sourceMappingURL=dependency.js.map

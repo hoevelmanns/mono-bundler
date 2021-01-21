@@ -47,4 +47,3 @@ class Hash {
     }
 }
 exports.Hash = Hash;
-//# sourceMappingURL=hash.js.map

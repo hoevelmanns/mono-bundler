@@ -21,4 +21,3 @@ exports.presets = {
     default: defaultPresets,
     legacy: legacyPresets
 };
-//# sourceMappingURL=presets.js.map

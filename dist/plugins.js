@@ -51,4 +51,3 @@ Plugins = __decorate([
     __param(0, tsyringe_1.inject('BuildOptions'))
 ], Plugins);
 exports.default = Plugins;
-//# sourceMappingURL=plugins.js.map

@@ -75,7 +75,7 @@ let Package = class Package {
     checkIfModified() {
         this.isModified = [
             ...this.output.map(o => libs_1.fileSystem.existsSync(o.file)),
-            libs_1.fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+            libs_1.fileSystem.existsSync(`${this.distDir}/.${this.hash}`),
         ].includes(false);
     }
     /**
@@ -171,4 +171,3 @@ Package = __decorate([
     tsyringe_1.injectable()
 ], Package);
 exports.default = Package;
-//# sourceMappingURL=package.js.map

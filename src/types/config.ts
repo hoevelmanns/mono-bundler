@@ -1,8 +1,7 @@
 import { InputOptions, ModuleFormat, RollupOptions } from 'rollup'
 import {ParsedArgs} from "minimist"
-import {Scripts} from "./package"
 
-export type MonoRollupOptions = RollupOptions[]
+export type MonoRollupOptions = RollupOptions & RollupOptions[]
 export type LoaderElemAttribute = {
     name: string,
     value: string
@@ -30,8 +29,6 @@ export type BuildOptions = CustomRollupOptions
 export type TransformedArgs = Partial<BuildOptions & ParsedArgs>
 
 export type AvailableBuildOptions = (keyof BuildOptions)[]
-
-export type ScriptKeys = keyof Scripts
 
 export const Bundles: Bundle[] = [
     {

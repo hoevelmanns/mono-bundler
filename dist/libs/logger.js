@@ -59,4 +59,3 @@ Logger = __decorate([
     tsyringe_1.singleton()
 ], Logger);
 exports.Logger = Logger;
-//# sourceMappingURL=logger.js.map

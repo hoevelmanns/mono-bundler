@@ -7,4 +7,3 @@ const hash_1 = require("./hash");
 Object.defineProperty(exports, "Hash", { enumerable: true, get: function () { return hash_1.Hash; } });
 const logger_1 = require("./logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
-//# sourceMappingURL=index.js.map

@@ -27,8 +27,8 @@ class MonoBundler {
     constructor(options) {
         var _a;
         this.options = options;
+        this.processedPackages = [];
         this.monoRollupOptions = [];
-        this.args = MonoBundler.transformedArgs;
         this.plugins = new plugins_1.default(this.buildOptions);
         this.noRollupOptions = ['packages', 'createLoaders', 'hashFileNames', 'legacyBrowserSupport'];
         /**
@@ -39,8 +39,7 @@ class MonoBundler {
         this.generateRollupConfig = () => {
             const runScript = this.getPackageScriptToBeExecuted();
             const packages = this.workspace.packages
-                .filter(pkg => pkg.scripts && !pkg.scripts[runScript]) // todo set in package.ts "runScript.build" "runScript.watch"
-                .filter(pkg => this.buildOptions.watch || pkg.isModified);
+                .filter(pkg => !pkg.scripts[runScript]); // todo set in package.ts "runScript.build" "runScript.watch"
             const external = (id) => id.includes('core-js'); // todo merge with this.config
             packages.map(pkg => pkg.output.map(output => this.monoRollupOptions.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
                 plugins: this.plugins.get(output, pkg),
@@ -57,10 +56,7 @@ class MonoBundler {
      * @returns BuildOptions
      */
     get buildOptions() {
-        const { options } = this;
-        // todo config switch options.createLoaders = !options.watch
-        // todo config switch options.legacyBrowserSupport = !options.watch
-        return Object.assign(Object.assign({}, options), this.args);
+        return Object.assign(Object.assign({}, this.options), MonoBundler.transformedArgs);
     }
     /**
      * @private
@@ -82,15 +78,14 @@ class MonoBundler {
             }
             yield this.runPackageScripts();
             this.generateRollupConfig();
-            return this.monoRollupOptions.length ? this.monoRollupOptions : process.exit();
+            return this.monoRollupOptions.length ? this.monoRollupOptions : {};
         });
     }
     /**
      * @protected
-     * @returns ScriptKeys
      */
     getPackageScriptToBeExecuted() {
-        return this.buildOptions.watch ? 'watch' : 'build'; // todo get scripts from config
+        return this.buildOptions.watch ? 'watch' : 'build';
     }
     /**
      *
@@ -99,12 +94,13 @@ class MonoBundler {
     runPackageScripts() {
         return __awaiter(this, void 0, void 0, function* () {
             const event = this.getPackageScriptToBeExecuted();
-            const packages = this.workspace.modifiedPackages
+            const packages = this.workspace.packages
                 .filter((pkg) => { var _a; return ((_a = pkg.scripts[event]) === null || _a === void 0 ? void 0 : _a.length) > 0; });
-            const processes = packages.map(({ packageDir }) => require('@npmcli/run-script')({
+            const runScript = require('@npmcli/run-script');
+            const processes = packages.map(pkg => runScript({
                 event,
-                path: packageDir,
-                stdio: 'inherit'
+                path: pkg.packageDir,
+                stdio: 'inherit',
             }));
             return this.buildOptions.watch
                 ? Promise.resolve(processes)
@@ -118,7 +114,7 @@ class MonoBundler {
     get cleanRollupOptions() {
         const rollupOptions = Object.assign({}, this.buildOptions);
         this.noRollupOptions.map(key => Reflect.deleteProperty(rollupOptions, key));
-        Object.keys(this.args).map(key => Reflect.deleteProperty(rollupOptions, key));
+        Object.keys(MonoBundler.transformedArgs).map(key => Reflect.deleteProperty(rollupOptions, key));
         return rollupOptions;
     }
     /**
@@ -134,4 +130,3 @@ class MonoBundler {
     }
 }
 exports.MonoBundler = MonoBundler;
-//# sourceMappingURL=mono-bundler.js.map

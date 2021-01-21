@@ -25,4 +25,3 @@ FileSystem.resolve = (...pathSegments) => path_1.default.resolve(...pathSegments
 FileSystem.filename = (path) => path.split("/").pop();
 FileSystem.extname = (p) => path_1.default.extname(p);
 exports.fileSystem = FileSystem;
-//# sourceMappingURL=filesystem.js.map

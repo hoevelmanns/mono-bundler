@@ -25,4 +25,3 @@ const getBundle = (name) => {
 };
 exports.getBundle = getBundle;
 exports.rollupExternals = ['core-js'];
-//# sourceMappingURL=config.js.map
