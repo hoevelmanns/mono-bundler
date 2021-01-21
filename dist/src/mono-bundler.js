@@ -78,7 +78,7 @@ class MonoBundler {
     createLoaders() {
         const hashFileNames = this.workspace.options.hashFileNames;
         this.workspace.options.createLoaders && !this.workspace.options.watch && this.workspace.modifiedPackages
-            .map(({ distDir, output, hash, bundleFilename }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleFilename).output(distDir, hashFileNames && hash); }));
+            .map(({ distDir, output, hash, bundleName }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleName).output(distDir, hashFileNames && hash); }));
     }
 }
 exports.MonoBundler = MonoBundler;

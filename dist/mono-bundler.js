@@ -37,8 +37,9 @@ class MonoBundler {
          * @returns void
          */
         this.generateRollupConfig = () => {
+            const runScript = this.getPackageScriptToBeExecuted();
             const packages = this.workspace.packages
-                .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build']) // todo set in package.ts "runScript.build" "runScript.watch"
+                .filter(pkg => pkg.scripts && !pkg.scripts[runScript]) // todo set in package.ts "runScript.build" "runScript.watch"
                 .filter(pkg => this.buildOptions.watch || pkg.isModified);
             const external = (id) => id.includes('core-js'); // todo merge with this.config
             packages.map(pkg => pkg.output.map(output => this.monoRollupOptions.push(Object.assign(Object.assign({}, this.cleanRollupOptions), {
@@ -80,10 +81,16 @@ class MonoBundler {
                 process.exit();
             }
             yield this.runPackageScripts();
-            // todo runNCC on packages with "ncc"-field
             this.generateRollupConfig();
             return this.monoRollupOptions.length ? this.monoRollupOptions : process.exit();
         });
+    }
+    /**
+     * @protected
+     * @returns ScriptKeys
+     */
+    getPackageScriptToBeExecuted() {
+        return this.buildOptions.watch ? 'watch' : 'build'; // todo get scripts from config
     }
     /**
      *
@@ -91,17 +98,17 @@ class MonoBundler {
      */
     runPackageScripts() {
         return __awaiter(this, void 0, void 0, function* () {
-            const command = this.buildOptions.watch ? 'watch' : 'build'; // todo config
+            const event = this.getPackageScriptToBeExecuted();
             const packages = this.workspace.modifiedPackages
-                .filter(pkg => { var _a; return ((_a = pkg.scripts[command]) === null || _a === void 0 ? void 0 : _a.length) > 0; });
-            const runScripts = packages.map(pkg => require('@npmcli/run-script')({
-                event: command,
-                path: pkg.packageDir,
+                .filter((pkg) => { var _a; return ((_a = pkg.scripts[event]) === null || _a === void 0 ? void 0 : _a.length) > 0; });
+            const processes = packages.map(({ packageDir }) => require('@npmcli/run-script')({
+                event,
+                path: packageDir,
                 stdio: 'inherit'
             }));
             return this.buildOptions.watch
-                ? Promise.resolve(runScripts)
-                : Promise.all(runScripts);
+                ? Promise.resolve(processes)
+                : Promise.all(processes);
         });
     }
     /**
@@ -123,7 +130,7 @@ class MonoBundler {
         const { buildOptions } = this;
         const hashFileNames = buildOptions.hashFileNames;
         buildOptions.createLoaders && !buildOptions.watch && this.workspace.modifiedPackages
-            .map(({ distDir, output, hash, bundleFilename }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleFilename, hashFileNames && hash).output(distDir); }));
+            .map(({ distDir, output, hash, bundleName }) => __awaiter(this, void 0, void 0, function* () { return new loader_1.default(output, bundleName, hashFileNames && hash).output(distDir); }));
     }
 }
 exports.MonoBundler = MonoBundler;

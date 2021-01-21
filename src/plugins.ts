@@ -4,8 +4,8 @@ import {OutputOptions, Plugin} from 'rollup'
 import {presets} from './presets'
 import {BuildOptions} from './types'
 import {inject} from 'tsyringe'
-import typescript from "@rollup/plugin-typescript";
-import Package from "./package";
+import typescript from "@rollup/plugin-typescript"
+import Package from "./package"
 
 export default class Plugins {
 

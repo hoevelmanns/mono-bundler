@@ -2,9 +2,10 @@ import Workspace from './workspace'
 import {Logger} from './libs'
 import Plugins from './plugins'
 import Loader from './loader'
-import {AvailableBuildOptions, BuildOptions, MonoRollupOptions, TransformedArgs} from './types'
+import {AvailableBuildOptions, BuildOptions, MonoRollupOptions, ScriptKeys, Scripts, TransformedArgs} from './types'
 import {container} from 'tsyringe'
 import minimist from 'minimist'
+import Package from "./package"
 
 export class MonoBundler {
     protected workspace: Workspace
@@ -57,11 +58,17 @@ export class MonoBundler {
 
         await this.runPackageScripts()
 
-        // todo runNCC on packages with "ncc"-field
-
         this.generateRollupConfig()
 
         return this.monoRollupOptions.length ? this.monoRollupOptions : process.exit()
+    }
+
+    /**
+     * @protected
+     * @returns ScriptKeys
+     */
+    private getPackageScriptToBeExecuted(): ScriptKeys {
+        return this.buildOptions.watch ? 'watch' : 'build' // todo get scripts from config
     }
 
     /**
@@ -69,19 +76,19 @@ export class MonoBundler {
      * @private
      */
     private async runPackageScripts(): Promise<any[]> {
-        const command = this.buildOptions.watch ? 'watch' : 'build' // todo config
+        const event = this.getPackageScriptToBeExecuted()
         const packages = this.workspace.modifiedPackages
-            .filter(pkg => pkg.scripts[command]?.length > 0)
+            .filter((pkg: Package) => pkg.scripts[event]?.length > 0)
 
-        const runScripts = packages.map(pkg => require('@npmcli/run-script')({
-            event: command,
-            path: pkg.packageDir,
+        const processes = packages.map(({packageDir}) => require('@npmcli/run-script')({
+            event,
+            path: packageDir,
             stdio: 'inherit'
         }))
 
         return this.buildOptions.watch
-            ? Promise.resolve(runScripts)
-            : Promise.all(runScripts)
+            ? Promise.resolve(processes)
+            : Promise.all(processes)
     }
 
     /**
@@ -90,8 +97,9 @@ export class MonoBundler {
      * @returns void
      */
     private generateRollupConfig = (): void => {
+        const runScript = this.getPackageScriptToBeExecuted()
         const packages = this.workspace.packages
-            .filter(pkg => pkg.scripts && !pkg.scripts[this.buildOptions.watch ? 'watch' : 'build']) // todo set in package.ts "runScript.build" "runScript.watch"
+            .filter(pkg => pkg.scripts && !pkg.scripts[runScript]) // todo set in package.ts "runScript.build" "runScript.watch"
             .filter(pkg => this.buildOptions.watch || pkg.isModified)
 
         const external = (id: string) => id.includes('core-js') // todo merge with this.config
@@ -130,7 +138,7 @@ export class MonoBundler {
         const hashFileNames = buildOptions.hashFileNames
 
         buildOptions.createLoaders && !buildOptions.watch && this.workspace.modifiedPackages
-            .map(async ({distDir, output, hash, bundleFilename}) =>
-                new Loader(output, bundleFilename, hashFileNames && hash).output(distDir))
+            .map(async ({distDir, output, hash, bundleName}) =>
+                new Loader(output, bundleName, hashFileNames && hash).output(distDir))
     }
 }

@@ -40,7 +40,7 @@ let Package = class Package {
         return __awaiter(this, void 0, void 0, function* () {
             Object.assign(this, fs_extra_1.readJSONSync(this.pkgJsonFile));
             this.setDirectories();
-            if (this.shouldBeIgnored()) {
+            if (this.packageShouldBeSkipped()) {
                 return this;
             }
             this.setBundleFilename();
@@ -66,7 +66,7 @@ let Package = class Package {
      * @returns void
      */
     setBundleFilename() {
-        this.bundleFilename = libs_1.fileSystem.filename(this.main);
+        this.bundleName = libs_1.fileSystem.filename(this.main);
     }
     /**
      * @private
@@ -81,17 +81,6 @@ let Package = class Package {
     /**
      *
      * @private
-     * @returns boolean
-     */
-    shouldBeIgnored() {
-        var _a, _b;
-        this.isIgnored = !(((_a = this.main) === null || _a === void 0 ? void 0 : _a.length) > 0);
-        this.isIgnored && this.log.error(`Package "${(_b = this.name) !== null && _b !== void 0 ? _b : this.packageDir}" was skipped! Missing "main" field in package.json`);
-        return this.isIgnored;
-    }
-    /**
-     *
-     * @private
      * @returns void
      */
     setRollupInput() {
@@ -102,22 +91,49 @@ let Package = class Package {
     /**
      *
      * @private
+     * @returns boolean
+     */
+    packageShouldBeSkipped() {
+        var _a, _b;
+        this.isIgnored = !(((_a = this.main) === null || _a === void 0 ? void 0 : _a.length) > 0);
+        this.isIgnored && this.log.error(`Package "${(_b = this.name) !== null && _b !== void 0 ? _b : this.packageDir}" was skipped! Missing "main" field in package.json`);
+        return this.isIgnored;
+    }
+    /**
+     *
+     * @param {Bundle} target
+     * @private
+     */
+    targetShouldBeSkipped(target) {
+        return 'legacy' === target.type && !this.buildOptions.legacyBrowserSupport;
+    }
+    /**
+     *
+     * @private
+     * @param {Bundle} bundle
+     * @returns string
+     */
+    generateOutputFilename(bundle) {
+        const filename = libs_1.fileSystem.concat(libs_1.fileSystem.join(this.packageDir, this.main), bundle.extraFileExtension);
+        return !this.buildOptions.hashFileNames ? filename : libs_1.fileSystem.concat(filename, this.hash);
+    }
+    /**
+     *
+     * @private
      * @returns void
      */
     setRollupOutput() {
         this.buildOptions.hashFileNames && this.output.push({
             name: 'default',
             file: libs_1.fileSystem.join(this.packageDir, this.main),
-            format: types_1.target('default').format,
+            format: types_1.getBundle('default').format,
         });
-        types_1.Targets.map((target) => __awaiter(this, void 0, void 0, function* () {
-            const filename = libs_1.fileSystem.concat(libs_1.fileSystem.join(this.packageDir, this.main), target.extraFileExtension);
-            if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {
-                return;
-            }
+        types_1.Bundles
+            .filter(target => !this.targetShouldBeSkipped(target))
+            .map((target) => __awaiter(this, void 0, void 0, function* () {
             this.output.push({
                 name: target.type,
-                file: !this.buildOptions.hashFileNames ? filename : libs_1.fileSystem.concat(filename, this.hash),
+                file: this.generateOutputFilename(target),
                 format: target.format,
             });
         }));
