@@ -1,18 +1,20 @@
-import { readJSONSync } from 'fs-extra'
-import { Hash, fileSystem, Logger } from './libs'
+import {readJSONSync} from 'fs-extra'
+import {Hash, fileSystem, Logger} from './libs'
 import Dependency from './dependency'
-import { OutputOptions } from 'rollup'
-import { Browser, Directories, BuildOptions, target, Targets } from './types'
-import { container, injectable } from 'tsyringe'
+import {OutputOptions} from 'rollup'
+import {Directories, BuildOptions, getBundle, Bundles, Engines, Scripts, Bundle} from './types'
+import {container, injectable} from 'tsyringe'
 
 @injectable()
 export default class Package {
     name: string
     main: string
-    bundleFilename: string
-    browser?: Browser
+    bundleName: string
     dependencies: Dependency[]
     devDependencies: Dependency[]
+    engines: Engines
+    scripts: Scripts
+    tsConfigPath: string
     packageDir: string
     sourceDir: string
     distDir: string
@@ -41,13 +43,15 @@ export default class Package {
 
         this.setDirectories()
 
-        if (this.shouldBeIgnored()) {
+        if (this.packageShouldBeSkipped()) {
             return this
         }
 
         this.setBundleFilename()
 
         await this.setHash()
+
+        await this.setTsConfig()
 
         this.setRollupInput()
 
@@ -61,31 +65,31 @@ export default class Package {
     }
 
     /**
+     *
+     * @private
+     */
+    private setTsConfig(): void {
+        const tsConfigFile = fileSystem.join(this.packageDir, 'tsconfig.json')
+        this.tsConfigPath = fileSystem.existsSync(tsConfigFile) && tsConfigFile
+    }
+
+    /**
      * @private
      * @returns void
      */
     private setBundleFilename() {
-        this.bundleFilename = fileSystem.filename(this.main)
+        this.bundleName = fileSystem.filename(this.main)
     }
 
     /**
      * @private
-     * @returns boolean
+     * @returns void
      */
     private checkIfModified() {
-        this.isModified = !fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
-        return this.isModified
-    }
-
-    /**
-     *
-     * @private
-     * @returns boolean
-     */
-    private shouldBeIgnored(): boolean {
-        this.isIgnored = !(this.main?.length > 0)
-        this.isIgnored && this.log.error(`Package "${this.name ?? this.packageDir}" was skipped! Missing "main" field in package.json`)
-        return this.isIgnored
+        this.isModified = [
+            ...this.output.map(o => fileSystem.existsSync(o.file)),
+            fileSystem.existsSync(`${this.distDir}/.${this.hash}`)
+        ].includes(false)
     }
 
     /**
@@ -103,28 +107,56 @@ export default class Package {
     /**
      *
      * @private
+     * @returns boolean
+     */
+    private packageShouldBeSkipped(): boolean {
+        this.isIgnored = !(this.main?.length > 0)
+        this.isIgnored && this.log.error(`Package "${this.name ?? this.packageDir}" was skipped! Missing "main" field in package.json`)
+        return this.isIgnored
+    }
+
+    /**
+     *
+     * @param {Bundle} target
+     * @private
+     */
+    private targetShouldBeSkipped(target: Bundle): boolean {
+        return 'legacy' === target.type && !this.buildOptions.legacyBrowserSupport
+    }
+
+    /**
+     *
+     * @private
+     * @param {Bundle} bundle
+     * @returns string
+     */
+    private generateOutputFilename(bundle: Bundle): string {
+        const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), bundle.extraFileExtension)
+        return !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash)
+    }
+
+    /**
+     *
+     * @private
      * @returns void
      */
     setRollupOutput(): void {
         this.buildOptions.hashFileNames && this.output.push({
             name: 'default',
             file: fileSystem.join(this.packageDir, this.main),
-            format: target('default').format,
+            format: getBundle('default').format,
         })
 
-        Targets.map(async target => {
-            const filename = fileSystem.concat(fileSystem.join(this.packageDir, this.main), target.extraFileExtension)
+        Bundles
+            .filter(target => !this.targetShouldBeSkipped(target))
+            .map(async target => {
 
-            if ('legacy' === target.type && !this.buildOptions.legacyBrowserSupport) {
-                return
-            }
-
-            this.output.push({
-                name: target.type,
-                file: !this.buildOptions.hashFileNames ? filename : fileSystem.concat(filename, this.hash),
-                format: target.format,
+                this.output.push({
+                    name: target.type,
+                    file: this.generateOutputFilename(target),
+                    format: target.format,
+                })
             })
-        })
     }
 
     /**

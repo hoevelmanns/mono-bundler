@@ -1,29 +1,35 @@
 import nodeResolve from '@rollup/plugin-node-resolve'
 import babel from '@rollup/plugin-babel'
-import { Plugin } from 'rollup'
-import presets from './presets'
-import { BuildOptions } from './types'
-import { inject } from 'tsyringe'
+import {OutputOptions, Plugin} from 'rollup'
+import {presets} from './presets'
+import {BuildOptions} from './types'
+import {inject} from 'tsyringe'
+import typescript from "@rollup/plugin-typescript"
+import Package from "./package"
 
 export default class Plugins {
 
-    constructor(@inject('BuildOptions') protected readonly buildOptions: BuildOptions) {}
+    constructor(@inject('BuildOptions') protected readonly buildOptions: BuildOptions) {
+    }
 
     /**
      *
-     * @param {string} target
+     * @param {OutputOptions} output
+     * @param {Package} pkg
      * @returns Plugin[]
      */
-    get(target: string): Plugin[] {
+    get(output: OutputOptions, pkg: Package): Plugin[] {
         const internalPlugins = [
-            nodeResolve({ extensions: ['.js', '.ts'] }),
+            nodeResolve({rootDir: pkg.packageDir, extensions: ['.ts', '.js']}),
+            pkg.tsConfigPath && typescript({tsconfig: pkg.tsConfigPath}),
             babel({
+                root: pkg.packageDir,
+                exclude: /node_modules/,
                 babelHelpers: 'bundled',
                 extensions: ['.js', '.ts'],
-                // @ts-ignore todo
-                presets: presets[<string>target],
+                presets: presets[output.name],
                 plugins: [
-                    ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
+                    ['@babel/plugin-proposal-decorators', {decoratorsBeforeExport: true}],
                     '@babel/plugin-proposal-class-properties',
                 ],
             }),

@@ -53,14 +53,6 @@ class Loader {
         return types_1.target(targetName).LoaderElemAttributes
             .map(attr => `elem.${attr.name}=${attr.value};`);
     }
-    /**
-     *
-     * @param {Bundle} bundle
-     * @returns string
-     */
-    cssImport(bundle) {
-        // todo
-    }
 }
 exports.default = Loader;
 //# sourceMappingURL=loader.js.map

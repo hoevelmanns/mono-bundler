@@ -1,6 +1,6 @@
-import { OutputOptions } from 'rollup'
-import { fileSystem } from './libs'
-import { Bundle, target } from './types'
+import {OutputOptions} from 'rollup'
+import {fileSystem} from './libs'
+import {getBundle} from './types'
 
 export default class Loader {
 
@@ -12,11 +12,9 @@ export default class Loader {
      * @param {string} hash
      */
     constructor(private readonly outputs: OutputOptions[], private filename: string, private hash?: string) {
-        outputs.map(outputOption => {
-            const ignoreLoader = 'default' === outputOption.name && this.hash && !outputOption.file.includes(this.hash)
-
-            !ignoreLoader && this.addImport(outputOption)
-        })
+        outputs
+            .map(outputOption =>
+                !this.louderShouldBeSkipped(outputOption) && this.addImport(outputOption))
     }
 
     /**
@@ -44,32 +42,33 @@ export default class Loader {
     }
 
     /**
+     * @private
+     * @param {OutputOptions} outputOption
+     * @returns boolean
+     */
+    private louderShouldBeSkipped(outputOption: OutputOptions): boolean {
+        return 'default' === outputOption.name && this.hash && !outputOption.file.includes(this.hash)
+    }
+
+    /**
      *
      * @param {OutputOptions} output
      * @returns string
      */
-    protected jsImport(output: OutputOptions) {
-        const stringifiedLoaderElementAttributes = this.stringifyElementAttributes(output.name)
-        return `elem = document.createElement('script');elem.src="${output.file}";${stringifiedLoaderElementAttributes}document.head.appendChild(elem);`
+    protected jsImport(output: OutputOptions): string {
+        return `elem = document.createElement('script');
+                elem.src="${output.file}";
+                ${this.stringifyElementAttributes(output.name)}document.head.appendChild(elem);`
     }
 
     /**
      *
      * @protected
-     * @param {string} targetName
+     * @returns string[]
      */
-    protected stringifyElementAttributes(targetName: string) {
-        return target(targetName).LoaderElemAttributes
+    protected stringifyElementAttributes(bundleName: string): string[] {
+        return getBundle(bundleName).LoaderElemAttributes
             .map(attr => `elem.${attr.name}=${attr.value};`)
-    }
-
-    /**
-     *
-     * @param {Bundle} bundle
-     * @returns string
-     */
-    protected cssImport(bundle: Bundle) {
-        // todo
     }
 }
 

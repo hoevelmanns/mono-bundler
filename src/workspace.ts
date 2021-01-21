@@ -39,6 +39,7 @@ export default class Workspace {
         return this.modifiedPackages.length > 0
     }
 
+
     /**
      *
      * @private

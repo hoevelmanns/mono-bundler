@@ -14,26 +14,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_node_resolve_1 = __importDefault(require("@rollup/plugin-node-resolve"));
 const plugin_babel_1 = __importDefault(require("@rollup/plugin-babel"));
-const presets_1 = __importDefault(require("./presets"));
+const presets_1 = require("./presets");
 const tsyringe_1 = require("tsyringe");
+const plugin_typescript_1 = __importDefault(require("@rollup/plugin-typescript"));
 let Plugins = class Plugins {
     constructor(buildOptions) {
         this.buildOptions = buildOptions;
     }
     /**
      *
-     * @param {string} target
+     * @param {OutputOptions} output
+     * @param {Package} pkg
      * @returns Plugin[]
      */
-    get(target) {
+    get(output, pkg) {
         var _a;
         const internalPlugins = [
-            plugin_node_resolve_1.default({ extensions: ['.js', '.ts'] }),
+            plugin_node_resolve_1.default({ rootDir: pkg.packageDir, extensions: ['.ts', '.js'] }),
+            pkg.tsConfigPath && plugin_typescript_1.default({ tsconfig: pkg.tsConfigPath }),
             plugin_babel_1.default({
+                root: pkg.packageDir,
+                exclude: /node_modules/,
                 babelHelpers: 'bundled',
                 extensions: ['.js', '.ts'],
-                // @ts-ignore todo
-                presets: presets_1.default[target],
+                presets: presets_1.presets[output.name],
                 plugins: [
                     ['@babel/plugin-proposal-decorators', { decoratorsBeforeExport: true }],
                     '@babel/plugin-proposal-class-properties',

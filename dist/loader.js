@@ -13,10 +13,8 @@ class Loader {
         this.filename = filename;
         this.hash = hash;
         this.imports = [];
-        outputs.map(outputOption => {
-            const ignoreLoader = 'default' === outputOption.name && this.hash && !outputOption.file.includes(this.hash);
-            !ignoreLoader && this.addImport(outputOption);
-        });
+        outputs
+            .map(outputOption => !this.louderShouldBeSkipped(outputOption) && this.addImport(outputOption));
     }
     /**
      *
@@ -39,30 +37,31 @@ class Loader {
         return this;
     }
     /**
+     * @private
+     * @param {OutputOptions} outputOption
+     * @returns boolean
+     */
+    louderShouldBeSkipped(outputOption) {
+        return 'default' === outputOption.name && this.hash && !outputOption.file.includes(this.hash);
+    }
+    /**
      *
      * @param {OutputOptions} output
      * @returns string
      */
     jsImport(output) {
-        const stringifiedLoaderElementAttributes = this.stringifyElementAttributes(output.name);
-        return `elem = document.createElement('script');elem.src="${output.file}";${stringifiedLoaderElementAttributes}document.head.appendChild(elem);`;
+        return `elem = document.createElement('script');
+                elem.src="${output.file}";
+                ${this.stringifyElementAttributes(output.name)}document.head.appendChild(elem);`;
     }
     /**
      *
      * @protected
-     * @param {string} targetName
+     * @returns string[]
      */
-    stringifyElementAttributes(targetName) {
-        return types_1.target(targetName).LoaderElemAttributes
+    stringifyElementAttributes(bundleName) {
+        return types_1.getBundle(bundleName).LoaderElemAttributes
             .map(attr => `elem.${attr.name}=${attr.value};`);
-    }
-    /**
-     *
-     * @param {Bundle} bundle
-     * @returns string
-     */
-    cssImport(bundle) {
-        // todo
     }
 }
 exports.default = Loader;

@@ -1,11 +1,14 @@
-import { InputOptions, ModuleFormat } from 'rollup'
+import { InputOptions, ModuleFormat, RollupOptions } from 'rollup'
+import {ParsedArgs} from "minimist"
+import {Scripts} from "./package"
 
+export type MonoRollupOptions = RollupOptions[]
 export type LoaderElemAttribute = {
     name: string,
     value: string
 }
 
-export type Target = {
+export type Bundle = {
     type: 'default' | 'legacy',
     extraFileExtension: string,
     format: ModuleFormat & string,
@@ -15,18 +18,22 @@ export type Target = {
 
 interface CustomRollupOptions extends Omit<InputOptions, 'input'> {
     packages: string | string[]
-    targets?: Target[],
+    bundles?: Bundle[],
     createLoaders?: boolean,
     hashFileNames?: boolean,
     silent?: boolean,
-    legacyBrowserSupport?: boolean
+    legacyBrowserSupport?: boolean,
 }
 
 export type BuildOptions = CustomRollupOptions
 
-export type AvailableBuildOptions = Partial<(keyof BuildOptions)[]>
+export type TransformedArgs = Partial<BuildOptions & ParsedArgs>
 
-export const Targets: Target[] = [
+export type AvailableBuildOptions = (keyof BuildOptions)[]
+
+export type ScriptKeys = keyof Scripts
+
+export const Bundles: Bundle[] = [
     {
         type: 'default',
         extraFileExtension: '',
@@ -44,15 +51,10 @@ export const Targets: Target[] = [
 /**
  *
  * @param {string} name
- * @returns Target
+ * @returns Bundle
  */
-export const target = (name: string) => {
-    return Targets.find(t => t.type === name)
-}
-
-export interface Bundle {
-    file: string
-    target: Target
+export const getBundle = (name: string): Bundle => {
+    return Bundles.find(t => t.type === name)
 }
 
 export const rollupExternals = ['core-js']

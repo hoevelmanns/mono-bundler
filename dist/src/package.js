@@ -51,7 +51,7 @@ class Package {
      * @returns void
      */
     setBundleFilename() {
-        this.bundleFilename = libs_2.fileSystem.filename(this.main);
+        this.bundleName = libs_2.fileSystem.filename(this.main);
     }
     /**
      * @private

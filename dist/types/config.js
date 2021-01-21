@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rollupExternals = exports.target = exports.Targets = void 0;
-exports.Targets = [
+exports.rollupExternals = exports.getBundle = exports.Bundles = void 0;
+exports.Bundles = [
     {
         type: 'default',
         extraFileExtension: '',
@@ -18,11 +18,11 @@ exports.Targets = [
 /**
  *
  * @param {string} name
- * @returns Target
+ * @returns Bundle
  */
-const target = (name) => {
-    return exports.Targets.find(t => t.type === name);
+const getBundle = (name) => {
+    return exports.Bundles.find(t => t.type === name);
 };
-exports.target = target;
+exports.getBundle = getBundle;
 exports.rollupExternals = ['core-js'];
 //# sourceMappingURL=config.js.map
