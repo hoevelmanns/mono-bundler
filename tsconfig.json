@@ -1,23 +1,18 @@
 {
     "compilerOptions": {
-        "experimentalDecorators": true,
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "target": "es6",
-        "noImplicitAny": true,
-        "declaration": true,
+        "target": "es2015",
         "moduleResolution": "node",
-        "outDir": "dist",
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "declaration": false,
+        "lib": ["es6", "esnext"],
         "baseUrl": ".",
         "paths": {
-            "*": [
-                "node_modules/*"
-            ]
-        },
-        "lib": ["es6", "es2018", "esnext"]
-    },
-    "include": [
-        "src/**/index.ts"
-    ]
+            "libs": ["src/libs/index.ts"],
+            "compilers": ["src/compilers/index.ts"],
+            "workspace": ["src/workspace/index.ts"],
+            "shared": ["src/shared/index.ts"]
+        }
+    }
 }
