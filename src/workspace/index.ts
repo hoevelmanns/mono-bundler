@@ -1,19 +1,16 @@
-import {options, Options} from "./options"
-import {Workspace, workspace} from "./workspace"
-import {logger, MonoOptions} from "shared"
+import { options, Options } from './options'
+import { logger, MonoOptions } from 'shared'
 import { Packages, packages } from './packages'
-import { Package } from "./package"
+import { Package } from './package'
 
 export const initWorkspace = async (config: Partial<MonoOptions>) =>
-    options(config) &&
-    logger() &&
-    await packages() &&
-    await workspace()
+	options(config) &&
+	logger() &&
+	await packages()
 
 export * from './types'
 export {
-    Workspace,
-    Packages,
-    Package,
-    Options,
+	Packages,
+	Package,
+	Options,
 }

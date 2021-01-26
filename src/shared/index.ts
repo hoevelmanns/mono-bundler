@@ -1,10 +1,8 @@
-import { fileSystem } from './filesystem'
-import { Hash } from './hash'
+import { PackageHash } from './package-hash'
 import Loader from './loader'
 
 export {
-    fileSystem,
-    Hash,
+    PackageHash,
     Loader
 }
 

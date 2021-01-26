@@ -1,7 +1,7 @@
 import {RollupOptions} from "rollup"
 
 export interface ICompiler {
-    build(): Promise<void>
+    execute(): Promise<void>
     id?: string
 }
 

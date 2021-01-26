@@ -8,7 +8,7 @@ Monorepo bundler based on [rollup.js](https://github.com/rollup/rollup) and [ver
 ## Usage
 
 ### Installation
-```console
+```terminal
 npm i mono-bundler
 ```
 
@@ -27,10 +27,10 @@ module.exports = {
   packages: [
     'apps/**/*',
     'packages/*/components',
-  ],
-  createLoaders: true,
-  hashFileNames: true,
-  legacyBrowserSupport: true,
+  ], 
+  createLoaders: true, // creates a loader file per bundle
+  hashFileNames: true, // adds a hash to the output file names
+  legacyBrowserSupport: true, // adds babel runtime polyfills for legacy browsers, e.g. IE11
   // rollup options
   plugins: [
     // rollup plugins

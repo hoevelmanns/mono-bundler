@@ -1,7 +1,8 @@
 import logSymbols from 'log-symbols'
 import chalk from 'chalk'
 import {autoInjectable, container, inject} from 'tsyringe'
-import {Options} from "workspace"
+import {Options} from 'workspace'
+import ora, { Ora } from 'ora'
 
 export const errorTxt = chalk.red
 export const yellowTxt = chalk.yellow
@@ -13,6 +14,8 @@ export const iconSuccess = logSymbols.success
 
 @autoInjectable()
 export class Logger {
+    
+    spinner: Ora = ora()
 
     constructor(@inject('Options') protected options?: Options) {
     }
@@ -39,7 +42,11 @@ export class Logger {
      * @param {string} message
      * @returns void
      */
-    error = (message: string): void => console.log(`${iconError} ${errorTxt(message)}`)
+    error = (message: string): Logger => {
+        this.spinner.stop()
+        console.log(`${iconError} ${errorTxt(message)}`)
+        return this
+    }
 
     /**
      * @param {string} message
@@ -52,6 +59,8 @@ export class Logger {
      * @returns void
      */
     yellow = (message: string): void => console.log(yellowTxt(message))
+    
+    exit = () => process.exit()
 }
 
 export const logger = () => container.register<Logger>('Logger', {useValue: new Logger()})
