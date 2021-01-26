@@ -34,6 +34,6 @@ export class Hash {
             .slice(0, 16)
             .toLowerCase()
 
-        return this.hash;
+        return this.hash
     }
 }

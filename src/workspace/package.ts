@@ -113,8 +113,7 @@ export class Package {
      * @returns boolean
      */
     private shouldBeSkipped(): boolean {
-        // todo more elegant
-        this.isIgnored = !(this.main?.length && fileSystem.existsSync(this.sourceDir))
+        this.isIgnored = !this.main?.length || !fileSystem.existsSync(this.sourceDir)
 
         if (this.isExcluded) {
             this.isIgnored = true
