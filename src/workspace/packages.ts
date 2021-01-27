@@ -76,7 +76,7 @@ export class Packages {
 			const packageLocations = sync(`${glob}/package.json`)
 			
 			await Promise.all(packageLocations.map(async pkgJsonPath => {
-				const pkg = await new Package(pkgJsonPath)
+				const pkg = new Package(pkgJsonPath)
 				
 				this.packageShouldBeIgnored(pkg)
 					? this.addToIgnored(pkg)

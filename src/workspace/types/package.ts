@@ -10,8 +10,8 @@ export interface Engines {
 }
 
 export interface Scripts {
-	'build'?: string,
-	'watch'?: string
+	build?: string,
+	watch?: string
 }
 
 export interface TsConfig {

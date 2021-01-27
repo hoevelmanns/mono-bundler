@@ -23,7 +23,7 @@ package.json (root)
 Create mono.config.js:
 
 ```js
-module.exports = {
+export default {
   packages: [
     'apps/**/*',
     'packages/*/components',

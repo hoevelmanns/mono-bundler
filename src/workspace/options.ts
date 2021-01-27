@@ -45,28 +45,28 @@ export class Options {
 	/**
 	 * @returns MonoOptions.hashFileNames
 	 */
-	get hashFileNames() {
+	get hashFileNames(): MonoOptions['hashFileNames'] {
 		return this.data.hashFileNames
 	}
 	
 	/**
 	 * @returns MonoOptions.createLoaders
 	 */
-	get createLoaders() {
+	get createLoaders(): MonoOptions['createLoaders'] {
 		return this.data.createLoaders
 	}
 	
 	/**
 	 * @returns MonoOptions.plugins
 	 */
-	get plugins() {
+	get plugins(): MonoOptions['plugins'] {
 		return this.data.plugins
 	}
 	
 	/**
 	 * @returns MonoOptions.watch
 	 */
-	get watch() {
+	get watch(): MonoOptions['watch'] {
 		return this.data.watch
 	}
 	

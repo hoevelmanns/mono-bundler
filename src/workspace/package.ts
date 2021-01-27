@@ -7,7 +7,6 @@ import { autoInjectable, inject } from 'tsyringe'
 import { Options } from './options'
 import { existsSync } from 'fs'
 import path from 'path'
-import { filename } from '../shared/filesystem'
 
 @autoInjectable()
 export class Package {
@@ -25,7 +24,6 @@ export class Package {
 	input: string
 	output: OutputOptions[] = []
 	currentHash: string
-	packageHash: string
 	isIgnored = false
 	config: { hash: string }
 	private directories: Directories
@@ -107,9 +105,8 @@ export class Package {
 	 * @private
 	 * @returns void
 	 */
-	private setBundleFilename = () => this.bundleName = filename(this.main)
-	
-	
+	private setBundleFilename = () => this.bundleName = path.basename(this.main)
+
 	/**
 	 *
 	 * @private

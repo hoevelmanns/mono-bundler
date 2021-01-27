@@ -1,6 +1,6 @@
 {
   "name": "mono-bundler",
-  "version": "1.41.51",
+  "version": "1.42.0",
   "description": "Monorepo bundler based on rollup.js",
   "scripts": {
     "build": "ncc build -m ./src/index.ts -o dist -e @rollup/plugin-node-resolve -e @rollup/plugin-typescript -e @rollup/plugin-babel -e rollup",
@@ -44,7 +44,7 @@
     "@vercel/ncc": "^0.27.0",
     "boxen": "^5.0.0",
     "chalk": "^4.1.0",
-    "cosmiconfig": "^7.0.0",
+    "esm-config": "^1.1.0",
     "fast-glob": "^3.2.4",
     "folder-hash": "^4.0.0",
     "fs-extra": "^9.0.1",
