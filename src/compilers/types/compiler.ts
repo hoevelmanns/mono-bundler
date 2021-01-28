@@ -1,8 +1,12 @@
 import {RollupOptions} from "rollup"
+import { ListrContext, ListrTask } from 'listr2'
 
-export interface ICompiler {
-    execute(): Promise<void>
+export interface Compiler {
+    tasks(ctx: ListrContext): ListrTask[]
     id?: string
+    taskName?: string
 }
 
 export type MonoRollupOptions = RollupOptions & RollupOptions[]
+
+

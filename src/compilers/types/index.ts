@@ -1,6 +1,6 @@
-import {ICompiler, MonoRollupOptions} from "./compiler"
+import {Compiler, MonoRollupOptions} from "./compiler"
 
 export {
-    ICompiler,
+    Compiler,
     MonoRollupOptions
 }

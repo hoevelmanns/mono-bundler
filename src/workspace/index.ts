@@ -1,6 +1,6 @@
+import { Packages, packages } from './packages'
 import { options, Options } from './options'
 import { logger, MonoOptions } from 'shared'
-import { Packages, packages } from './packages'
 import { Package } from './package'
 
 export const initWorkspace = async (config: Partial<MonoOptions>) =>

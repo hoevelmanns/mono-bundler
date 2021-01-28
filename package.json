@@ -1,7 +1,11 @@
 {
   "name": "mono-bundler",
-  "version": "1.42.0",
+  "version": "1.43.0",
   "description": "Monorepo bundler based on rollup.js",
+  "keywords": [
+    "monorepo",
+    "bundler"
+  ],
   "scripts": {
     "build": "ncc build -m ./src/index.ts -o dist -e @rollup/plugin-node-resolve -e @rollup/plugin-typescript -e @rollup/plugin-babel -e rollup",
     "watch": "npm run build -- -w"
@@ -39,6 +43,7 @@
     "@types/babel__core": "^7.1.12",
     "@types/folder-hash": "^3.3.0",
     "@types/fs-extra": "^9.0.6",
+    "@types/lodash": "^4.14.168",
     "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.21",
     "@vercel/ncc": "^0.27.0",
@@ -48,6 +53,8 @@
     "fast-glob": "^3.2.4",
     "folder-hash": "^4.0.0",
     "fs-extra": "^9.0.1",
+    "listr2": "^3.3.0",
+    "lodash": "^4.17.20",
     "log-symbols": "^4.0.0",
     "minimist": "^1.2.5",
     "ora": "^5.3.0",

@@ -1,12 +1,11 @@
-import { MonoOptions, TransformedArgs } from 'shared'
-import minimist from 'minimist'
 import { container, injectable, singleton } from 'tsyringe'
+import { MonoOptions, TransformedArgs } from 'shared'
 import { InputOptions } from 'rollup'
+import minimist from 'minimist'
 
 @singleton()
 @injectable()
 export class Options {
-	
 	private readonly data: Partial<MonoOptions>
 	
 	constructor(private readonly config: Partial<Options>) {
@@ -105,5 +104,5 @@ export class Options {
 	}
 }
 
-
-export const options = (config: Partial<Options>) => container.register<Options>('Options', { useFactory: () => new Options(config) })
+export const options = (config: Partial<Options>) =>
+	container.register<Options>('Options', { useFactory: () => new Options(config) })

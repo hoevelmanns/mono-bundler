@@ -132,7 +132,7 @@ export class Packages {
 	private showReport() {
 		const { count, dependencies } = this
 		this.logger.info(`Found packages: ${count}`)
-		this.logger.info(`Found dependencies: ${dependencies.length}`)
+		this.logger.info(`Found dependencies: ${dependencies.length}\n`)
 	}
 }
 

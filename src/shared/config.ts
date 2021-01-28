@@ -1,6 +1,6 @@
 import {InputOptions, ModuleFormat} from 'rollup'
 import {ParsedArgs} from "minimist"
-import {ICompiler} from "compilers"
+import { Compiler } from 'compilers'
 
 export type LoaderElemAttribute = {
     name: string,
@@ -23,7 +23,7 @@ export interface IMonoOptions {
     hashFileNames?: boolean,
     silent?: boolean,
     legacyBrowserSupport?: boolean,
-    compilers?: ICompiler[] // todo makes possible to add custom compilers
+    compilers?: Compiler[] // todo makes possible to add custom compilers
 }
 
 export type MonoOptions = IMonoOptions & Omit<InputOptions, 'input'>
