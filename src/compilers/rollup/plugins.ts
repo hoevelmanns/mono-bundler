@@ -3,9 +3,13 @@ import {OutputOptions, Plugin} from 'rollup'
 import {presets} from './presets'
 import {Package} from "workspace"
 import {container} from "tsyringe"
-import typescript from "@rollup/plugin-typescript"
 import nodeResolve from "@rollup/plugin-node-resolve"
 import {Options} from "workspace"
+import typescript from "rollup-plugin-typescript2"
+
+const tsconfigDefaults = {
+    // todo -> >>"module": "es2015"<< for rollup
+}
 
 export default class RollupPlugins {
 
@@ -20,7 +24,11 @@ export default class RollupPlugins {
     get(output: OutputOptions, pkg: Package): Plugin[] {
         const internalPlugins = [
             nodeResolve({rootDir: pkg.packageDir, extensions: ['.ts', '.js']}),
-            pkg.tsConfigPath && typescript({tsconfig: pkg.tsConfigPath}),
+            pkg.tsConfigPath && typescript({
+                tsconfig: pkg.tsConfigPath,
+                abortOnError: true,
+                tsconfigDefaults,
+            }), // todo abortOnError necessary?
             babel({
                 root: pkg.packageDir,
                 exclude: /node_modules/,

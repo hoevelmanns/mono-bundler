@@ -1,8 +1,8 @@
 import {RollupOptions} from "rollup"
-import { ListrContext, ListrTask } from 'listr2'
+import {Listr, ListrContext, ListrTaskWrapper} from 'listr2'
 
 export interface Compiler {
-    tasks(ctx: ListrContext): ListrTask[]
+    tasks(ctx: ListrContext, task?: ListrTaskWrapper<any, any>): Listr
     id?: string
     taskName?: string
 }

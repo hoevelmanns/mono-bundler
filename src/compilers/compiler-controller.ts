@@ -4,7 +4,7 @@ import { Constructor } from 'shared'
 
 export class CompilerController {
 	compilers: Compiler[] = []
-	tasks = new Listr([])
+	tasks = new Listr([], {rendererOptions: {showErrorMessage: true, showTimer: true}})
 	
 	/**
 	 * @param {Compiler[]} compilers
@@ -20,14 +20,10 @@ export class CompilerController {
 	async run(): Promise<void> {
 		this.compilers.map(compiler => this.addTask({
 			title: compiler.taskName,
-			task: (ctx, task): Listr => task.newListr(compiler.tasks(ctx)),
+			task: (ctx, task): Listr => compiler.tasks(ctx, task),
 		}))
-		
-		try {
-			await this.tasks.run()
-		} catch (e) {
-			console.error(e)
-		}
+
+		await this.tasks.run()
 	}
 	
 	/**

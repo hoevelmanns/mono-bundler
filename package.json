@@ -1,14 +1,15 @@
 {
   "name": "mono-bundler",
-  "version": "1.43.0",
+  "version": "1.43.6",
   "description": "Monorepo bundler based on rollup.js",
   "keywords": [
     "monorepo",
     "bundler"
   ],
   "scripts": {
-    "build": "ncc build -m ./src/index.ts -o dist -e @rollup/plugin-node-resolve -e @rollup/plugin-typescript -e @rollup/plugin-babel -e rollup",
-    "watch": "npm run build -- -w"
+    "build": "ncc build -m ./src/index.ts -o dist -e @babel/core -e @rollup/plugin-node-resolve -e rollup-plugin-typescript2 -e @rollup/plugin-babel -e rollup",
+    "watch": "npm run build -- -w",
+    "prepublish": "npm run build"
   },
   "bin": {
     "mono": "dist/index.js"
@@ -31,7 +32,7 @@
     "@babel/core": "^7.12.10",
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-node-resolve": "^11.1.0",
-    "@rollup/plugin-typescript": "^8.1.0"
+    "rollup-plugin-typescript2": "^0.29.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.12.1",
