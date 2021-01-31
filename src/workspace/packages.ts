@@ -27,6 +27,17 @@ export class Packages {
 	}
 	
 	/**
+	 *
+	 * @param {string} moduleName
+	 * @returns Package
+	 */
+	get(moduleName: string): Package {
+		return this.processablePackages
+			.filter(p => p.name === moduleName)
+			.shift()
+	}
+	
+	/**
 	 * @returns Package[]
 	 */
 	getProcessable = (): Package[] => this.processablePackages

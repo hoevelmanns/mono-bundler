@@ -2,13 +2,14 @@ import { PackageHash } from './package-hash'
 import Loader from './loader'
 
 export interface Constructor<T> extends Function {
-    new(...args: any[]): T;
+	new(...args: any[]): T;
 }
 
 export {
-    PackageHash,
-    Loader
+	PackageHash,
+	Loader,
 }
 
+export * from './filesystem'
 export * from './config'
 export * from './logger'

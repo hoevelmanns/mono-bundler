@@ -5,7 +5,7 @@ export interface Directories {
 export interface Engines {
 	node?: { [key: string]: string },
 	npm?: { [key: string]: string },
-	
+	rollup?: { [key: string]: string }
 	[key: string]: any
 }
 
@@ -16,8 +16,8 @@ export interface Scripts {
 
 export interface TsConfig {
 	compilerOptions: {
-		target: "es6" | "es2015" | "esnext" | "es2020",
-		moduleResolution: "node" | "classic",
+		target: 'es6' | 'es2015' | 'esnext' | 'es2020',
+		moduleResolution: 'node' | 'classic',
 		resolveJsonModule: boolean,
 		[key: string]: any
 	},

@@ -41,6 +41,7 @@ export class Package {
 		@inject('Logger') protected readonly log?: Logger,
 	) {
 		Object.assign(this, readJSONSync(this.pkgJsonFile))
+		this.setMain()
 		this.setDirectories()
 		this.setBundleFilename()
 		this.setTsConfig()
@@ -88,7 +89,19 @@ export class Package {
 	 */
 	get isModified(): boolean {
 		return this.currentHash !== this.config?.hash
-			|| !existsSync(path.join(this.packageDir, this.main))
+			|| !existsSync(path.join(this.packageDir, this.main)) // todo handler if main field not exists in package.json
+	}
+	
+	/**
+	 *
+	 * @private
+	 * @returns void
+	 */
+	private setMain(): void {
+		this.main = this.main ?? `dist/${this.name
+			.replace('@', '')
+			.replace('/', '-')
+		}.js`
 	}
 	
 	/**
@@ -106,7 +119,7 @@ export class Package {
 	 * @returns void
 	 */
 	private setBundleFilename = () => this.bundleName = path.basename(this.main)
-
+	
 	/**
 	 *
 	 * @private

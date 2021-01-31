@@ -4,6 +4,7 @@ import {autoInjectable, container, inject} from 'tsyringe'
 import {Options} from 'workspace'
 import ora, { Ora } from 'ora'
 
+export const boldTxt = chalk.bold
 export const errorTxt = chalk.red
 export const yellowTxt = chalk.yellow
 export const warningTxt = chalk.keyword('orange')
