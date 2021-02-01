@@ -68,6 +68,7 @@ export class Rollup implements Compiler {
 			task: async () => Promise.all(options.map(async opt => {
 				const bundle = await rollup(opt)
 				const output = Array.isArray(opt.output) ? opt.output : [opt.output]
+				
 				output.map(bundle.write)
 				await bundle.close()
 				await this.packages.get(moduleName).updateHash()

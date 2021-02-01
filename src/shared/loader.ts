@@ -58,7 +58,7 @@ export default class Loader {
 	 * @returns string
 	 */
 	protected jsImport(output: OutputOptions): string {
-		return `elem = document.createElement('script');elem.src="${output.file}${this.stringifyElementAttributes(output.name)};document.head.appendChild(elem);`
+		return `elem = document.createElement('script');elem.src="${output.file}";${this.stringifyElementAttributes(output.name)}document.head.appendChild(elem);`
 	}
 	
 	/**

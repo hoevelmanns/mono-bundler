@@ -63,11 +63,7 @@ export class Package {
 	 * @private
 	 * @returns void
 	 */
-	async generateHash(): Promise<string> {
-		this.currentHash = await new PackageHash(this.packageDir).generate()
-		return this.currentHash
-	}
-	
+	generateHash = async (): Promise<string> => this.currentHash = await new PackageHash(this.packageDir).generate()
 	
 	/**
 	 * @private

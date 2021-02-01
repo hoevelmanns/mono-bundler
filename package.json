@@ -1,6 +1,6 @@
 {
   "name": "mono-bundler",
-  "version": "1.43.8",
+  "version": "1.43.9",
   "description": "Monorepo bundler based on rollup.js",
   "keywords": [
     "monorepo",
@@ -15,7 +15,9 @@
     "mono": "dist/index.js"
   },
   "main": "dist/index.js",
-  "files": ["dist/index.js"],
+  "files": [
+    "dist/index.js"
+  ],
   "types": "./dist/index.d.ts",
   "author": "Marcelle Hövelmanns",
   "license": "MIT",
