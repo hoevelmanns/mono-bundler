@@ -27,9 +27,7 @@ export class Package {
 	isIgnored = false
 	config: { hash: string }
 	private directories: Directories
-	
-	// todo isModule = false
-	
+
 	/**
 	 * @param {string} pkgJsonFile
 	 * @param {Options} options
@@ -41,12 +39,12 @@ export class Package {
 		@inject('Logger') protected readonly log?: Logger,
 	) {
 		Object.assign(this, readJSONSync(this.pkgJsonFile))
-		this.setMain()
-		this.setDirectories()
+    this.setDirectories()
+    this.setMain()
 		this.setBundleFilename()
 		this.setTsConfig()
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -57,14 +55,14 @@ export class Package {
 			.filter(ex => this.packageDir.includes(ex))
 			.length > 0
 	}
-	
+
 	/**
 	 *
 	 * @private
 	 * @returns void
 	 */
 	generateHash = async (): Promise<string> => this.currentHash = await new PackageHash(this.packageDir).generate()
-	
+
 	/**
 	 * @private
 	 * @returns void
@@ -72,34 +70,34 @@ export class Package {
 	async updateHash(): Promise<void> {
 		const pkgJson = readJSONSync(this.pkgJsonFile)
 		const hash = this.currentHash
-		
+
 		pkgJson.config = pkgJson.config
 			? { ...pkgJson.config, ...{ hash } }
 			: { hash }
-		
+
 		writeJsonSync(this.pkgJsonFile, pkgJson, { spaces: '\t' })
 	}
-	
+
 	/**
 	 * @returns boolean
 	 */
 	get isModified(): boolean {
 		return this.currentHash !== this.config?.hash
-			|| !existsSync(path.join(this.packageDir, this.main)) // todo handler if main field not exists in package.json
+			|| !existsSync(path.join(this.packageDir, this.main))
 	}
-	
+
 	/**
 	 *
 	 * @private
 	 * @returns void
 	 */
 	private setMain(): void {
-		this.main = this.main ?? `dist/${this.name
+		this.main = this.main ?? `dist/${this.name ?? ''
 			.replace('@', '')
 			.replace('/', '-')
 		}.js`
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -109,13 +107,13 @@ export class Package {
 		this.tsConfigPath = existsSync(tsConfigFile) && tsConfigFile
 		this.tsConfig = this.tsConfigPath && readJSONSync(this.tsConfigPath)
 	}
-	
+
 	/**
 	 * @private
 	 * @returns void
 	 */
 	private setBundleFilename = () => this.bundleName = path.basename(this.main)
-	
+
 	/**
 	 *
 	 * @private
