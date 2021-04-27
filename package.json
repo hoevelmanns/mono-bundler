@@ -1,6 +1,6 @@
 {
   "name": "mono-bundler",
-  "version": "1.43.91",
+  "version": "1.43.92",
   "description": "Monorepo bundler based on rollup.js",
   "keywords": [
     "monorepo",

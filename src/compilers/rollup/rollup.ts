@@ -19,14 +19,14 @@ import { Bundler } from '../decorators'
 export class Rollup implements Compiler {
 	protected readonly plugins = new RollupPlugins()
 	protected rollupOptions: MonoRollupOptions = []
-	
+
 	constructor(
 		@inject('Options') protected options?: Options,
 		@inject('Packages') protected packages?: Packages,
 		@inject('Logger') protected log?: Logger,
 	) {
 	}
-	
+
 	/**
 	 * @param {ListrContext} ctx
 	 * @param {ListrTaskWrapper} task
@@ -37,7 +37,7 @@ export class Rollup implements Compiler {
 			task.title = `${task.title}: Packages are up-to-date. Nothing to do.`
 			return
 		}
-		
+
 		return task.newListr([
 			{
 				title: boldTxt('Building configuration'),
@@ -54,7 +54,7 @@ export class Rollup implements Compiler {
 			},
 		], { exitOnError: true })
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -62,22 +62,21 @@ export class Rollup implements Compiler {
 	private readonly build = (): ListrTask[] => {
 		const tasks: ListrTask[] = []
 		const groupedRollupOptions = lodash.groupBy(this.rollupOptions, 'context')
-		
+
 		Object.entries(groupedRollupOptions).map(([moduleName, options]) => tasks.push({
 			title: moduleName,
 			task: async () => Promise.all(options.map(async opt => {
 				const bundle = await rollup(opt)
 				const output = Array.isArray(opt.output) ? opt.output : [opt.output]
-				
+
 				output.map(bundle.write)
-				await bundle.close()
 				await this.packages.get(moduleName).updateHash()
 			})),
 		}))
-		
+
 		return tasks
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -86,7 +85,7 @@ export class Rollup implements Compiler {
 		return this.packages.getProcessable()
 			.filter(pkg => this.isRollupModule(pkg))
 	}
-	
+
 	/**
 	 *
 	 * @param {Package} pkg
@@ -96,7 +95,7 @@ export class Rollup implements Compiler {
 		const moduleResolution = pkg.tsConfig?.compilerOptions?.moduleResolution?.toLowerCase()
 		return !!pkg.engines?.rollup || (moduleResolution !== 'node' && !pkg.engines?.node)
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -104,7 +103,7 @@ export class Rollup implements Compiler {
 	 */
 	private readonly generateConfig = async (): Promise<void> => {
 		const external = (id: string) => id.includes('core-js') // todo merge with this.config
-		
+
 		this.rollupPackages.map(async pkg => (await this.getPackageOutput(pkg))
 			.map(output =>
 				this.rollupOptions.push({
@@ -118,7 +117,7 @@ export class Rollup implements Compiler {
 					},
 				})))
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -128,7 +127,7 @@ export class Rollup implements Compiler {
 	private targetShouldBeSkipped(target: Bundle): boolean {
 		return 'legacy' === target.type && !this.options.legacyBrowserSupport
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -141,12 +140,12 @@ export class Rollup implements Compiler {
 			path.join(pkg.packageDir, pkg.main),
 			bundle.extraFileExtension,
 		)
-		
+
 		return this.options.hashFileNames
 			? concatFilename(filename, pkg.currentHash)
 			: filename
 	}
-	
+
 	/**
 	 *
 	 *
@@ -156,17 +155,17 @@ export class Rollup implements Compiler {
 	private async createLoaders(): Promise<void> {
 		const hashFileNames = this.options.hashFileNames
 		const packages = this.packages.getProcessable()
-		
+
 		if (!this.options.createLoaders && !this.options.watch) {
 			return
 		}
-		
+
 		await Promise.all(packages
 			.filter(pkg => this.isRollupModule(pkg))
 			.map(async ({ distDir, output, currentHash, bundleName, name }) =>
 				await new Loader(output, bundleName, hashFileNames && currentHash).output(distDir)))
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -174,13 +173,13 @@ export class Rollup implements Compiler {
 	 */
 	private async getPackageOutput(pkg: Package): Promise<OutputOptions[]> {
 		const { output, packageDir, main } = pkg
-		
+
 		this.options.hashFileNames && output.push({
 			name: 'default',
 			file: path.join(packageDir, main),
 			format: getBundle('default').format,
 		})
-		
+
 		Bundles
 			.filter(target => !this.targetShouldBeSkipped(target))
 			.map(async target => output.push({
@@ -188,10 +187,10 @@ export class Rollup implements Compiler {
 				file: await this.generateOutputFilename(target, pkg),
 				format: target.format,
 			}))
-		
+
 		return output
 	}
-	
+
 	/**
 	 *
 	 * @private
@@ -200,7 +199,7 @@ export class Rollup implements Compiler {
 	private readonly getInput = (pkg: Package): string => {
 		const inputTS = path.join(pkg.sourceDir, 'index.ts')
 		const inputJS = path.join(pkg.sourceDir, 'index.js')
-		
+
 		return existsSync(inputTS) ? inputTS : existsSync(inputJS) ? inputJS : null
 	}
 }
